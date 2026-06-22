@@ -1,0 +1,24 @@
+"""Core domain logic for Q-GEAR AI Growth OS."""
+
+from qgear_core.decision import evaluate_decision
+from qgear_core.earnings import EarningsReview, classify_earnings_review
+from qgear_core.backtest import BacktestObservation, summarize_backtest, validate_no_lookahead
+from qgear_core.risk import classify_drawdown_mode, recommend_position_size
+from qgear_core.scoring import score_from_metrics
+from qgear_core.valuation import ValuationCase, expected_irr_pct, probability_weighted_irr_pct, summarize_valuation
+
+__all__ = [
+    "BacktestObservation",
+    "ValuationCase",
+    "classify_drawdown_mode",
+    "classify_earnings_review",
+    "EarningsReview",
+    "evaluate_decision",
+    "expected_irr_pct",
+    "probability_weighted_irr_pct",
+    "recommend_position_size",
+    "score_from_metrics",
+    "summarize_backtest",
+    "summarize_valuation",
+    "validate_no_lookahead",
+]

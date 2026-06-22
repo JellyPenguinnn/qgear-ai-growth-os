@@ -1,0 +1,97 @@
+# Iteration Log
+
+## 2026-06-22
+
+- Loaded project context from `AGENTS.md`, `README.md`, docs, prompts, tests, core package, API, and frontend.
+- Ran `git status --short --branch`; repository has no initial commit and all source files are untracked.
+- Spawned Strategy Research, Core Decision Engine, Backend/API, Frontend/UI, Data Ingestion, QA/Test, Security/Privacy/Compliance, and Documentation/PM audit agents.
+- Confirmed pre-fix frontend failures:
+  - `npm run lint` failed because `next lint` is invalid with installed Next 16.
+  - `npm run build` failed on typed-route `Link` href in `layout.tsx`.
+- Accepted v0.1.1 hardening plan in `docs/project_status.md`.
+- Implemented core decision hardening:
+  - `ADD_ALLOWED` now requires an explicit add request when already owned.
+  - Buy/add now requires a structured fresh positive evidence object.
+  - Cash-buffer risk budget can block new money before position sizing.
+  - Added regression coverage for stale evidence, invalidation rules, weak AI relevance, guidance cuts, margin deterioration, broken technicals, red flags, cash buffer limits, and score-high-but-gate-fails cases.
+- Implemented API/backend hardening:
+  - `/health` no longer exposes local filesystem paths.
+  - Request schemas now validate core local workflows more tightly.
+  - Unknown portfolio tickers and unknown earnings tickers now return 404.
+  - `.env` loading is supported when `python-dotenv` is available.
+  - API examples were added in `docs/API_EXAMPLES.md`.
+- Implemented seed/demo validation:
+  - `scripts/seed_local_data.py` validates demo universe parity, duplicate tickers, structured evidence, and buy/add consistency.
+- Implemented frontend hardening:
+  - Replaced removed `next lint` command with `eslint .`.
+  - Fixed typed-route navigation issues.
+  - Added structured evidence, decision reasons, blockers, and position sizing to stock detail pages.
+  - Added a global research-only disclaimer in the layout.
+  - Pinned dependency versions and added a targeted `postcss@8.5.10` override after `npm audit` found a moderate advisory.
+- Verification completed:
+  - `python3 scripts/run_tests.py` passed with 25 tests.
+  - `python3 -m compileall packages apps/api scripts tests` passed.
+  - `python3 scripts/seed_local_data.py` passed seed validation; DuckDB was optional and unavailable in the global Python environment.
+  - `npm run lint`, `npm run typecheck`, and `npm run build` passed.
+  - `npm audit --omit=dev` passed after the PostCSS override.
+  - API smoke checks passed for `/health`, `/universe`, `/portfolio`, `/earnings`, and `/reports/weekly`.
+  - Ignore checks confirmed local secrets, envs, build outputs, DBs, and caches are excluded.
+  - Browser visual smoke was attempted but blocked before navigation because the in-app browser runtime failed to initialize in this environment.
+- Re-verified v0.1.1 before starting v0.2:
+  - `python3 scripts/run_tests.py` passed with 25 tests.
+  - `python3 -m compileall packages apps/api scripts tests` passed.
+  - `python3 scripts/seed_local_data.py` passed seed validation; DuckDB remained optional and unavailable in the global Python environment.
+  - `npm run lint`, `npm run typecheck`, `npm run build`, and `npm audit --omit=dev` passed.
+- Started v0.2 data foundation:
+  - Spawned bounded audit agents for strategy research, core decision engine, backend/API, frontend/UI, data ingestion, QA/test, security/privacy/compliance, and documentation/PM.
+  - Added v0.2 exit criteria to `docs/project_status.md`.
+- Completed v0.2 data foundation:
+  - Added provider metadata models and a shared provider response envelope.
+  - Added demo/live provider factory routing.
+  - Added SEC company facts, submissions, and filing metadata provider methods with cache metadata, backoff/retry, graceful error responses, and max 10 requests/second.
+  - Added mock daily price snapshots and benchmark snapshots for SPY, QQQ, XLK, and SMH.
+  - Added `/providers/status`, `/providers/company-facts/{cik}`, `/providers/submissions/{cik}`, `/providers/filings/{cik}`, `/providers/prices`, and `/providers/benchmarks`.
+  - Added file-backed SEC provider fixture tests and API provider metadata smoke tests.
+  - Strengthened action-changing evidence validation for non-empty fields, ISO source dates, and at least MEDIUM confidence.
+  - Added provider provenance to the dashboard and API examples.
+  - Added provider source notes for SEC EDGAR, FRED, and EIA under `docs/research/`.
+  - Re-ran verification: `python3 scripts/run_tests.py` passed with 34 tests; compile, seed validation, frontend lint/typecheck/build, `npm audit --omit=dev`, and API smoke checks passed.
+- Started v0.3 earnings and evidence engine:
+  - Added v0.3 exit criteria to `docs/project_status.md`.
+- Completed v0.3 earnings and evidence engine:
+  - Added pure `EarningsReview` classification logic for strengthened, unchanged, weakened, and broken thesis updates.
+  - Added SQLite persistence for structured evidence objects and earnings reviews.
+  - Added API endpoints for manual evidence and earnings reviews under `/earnings/{ticker}/evidence` and `/earnings/{ticker}/reviews`.
+  - Added a frontend manual earnings review form.
+  - Added tests for earnings classification, structured evidence persistence, and API round trips.
+  - Re-ran verification: `python3 scripts/run_tests.py` passed with 40 tests; compile, seed validation, frontend lint/typecheck/build, `npm audit --omit=dev`, and API earnings smoke passed.
+- Started v0.4 valuation and backtesting foundation:
+  - Added v0.4 exit criteria to `docs/project_status.md`.
+- Completed v0.4 valuation and backtesting foundation:
+  - Added valuation models for bear/base/bull cases, 3-year and 5-year IRR, and probability-weighted IRR.
+  - Added fixture backtest models and no-lookahead validation.
+  - Added `/valuation/{ticker}` and `/valuation/backtest/demo` API routes.
+  - Added stock-detail rendering for valuation scenarios, latest earnings status, saved thesis, and local journal trail.
+  - Added tests for expected IRR, probability-weighted IRR, probability validation, no-lookahead guardrails, and a great-company-too-expensive API case.
+  - Re-ran verification: `python3 scripts/run_tests.py` passed with 46 tests; compile, seed validation, frontend lint/typecheck/build, `npm audit --omit=dev`, and valuation API smoke passed.
+- Started v0.5 reports, alerts, and review cycles:
+  - Added v0.5 exit criteria to `docs/project_status.md`.
+- Completed v0.5 reports, alerts, and review cycles:
+  - Added `/alerts` with filing review, earnings thesis risk, stale evidence, technical break, concentration, drawdown, and thesis review date alert rules.
+  - Added `/journal/analytics` for local action mix, evidence coverage, and unresolved outcome review.
+  - Expanded daily, monthly, quarterly, and annual report APIs to include alert summaries, source metadata, journal analytics, benchmark policy, and no-lookahead backtest notes.
+  - Updated the Reports frontend page to show the alert queue and monthly/quarterly/annual review summaries.
+  - Added tests proving alerts are review prompts only and report/journal analytics routes stay healthy.
+  - Re-ran verification: `python3 scripts/run_tests.py` passed with 48 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed after approved registry access; API smoke checks passed for core, alert, journal analytics, report, and valuation endpoints.
+- Started v1.0 local-flow completion pass:
+  - Moved `docs/project_status.md` current milestone to v1.0.
+  - Remaining focus: verify end-to-end local flow, update final docs, document live-provider/browser caveats, and avoid broad new feature work unless it blocks the v1.0 standard.
+- Completed v1.0 local/demo completion pass:
+  - Found and fixed production web route issues during built-server smoke: API-backed pages were serving build-time fallback snapshots, `/universe/NVDA` failed under the installed Next dynamic route semantics, and API universe scores omitted computed totals.
+  - Changed frontend API fetches to dynamic local requests.
+  - Updated the stock detail route to await dynamic route params.
+  - Updated API serialization to preserve nested dataclass custom JSON shapes such as score totals.
+  - Added an API regression check that universe scores include `total`.
+  - Verified built web routes for dashboard, universe, NVDA stock detail, earnings, portfolio, journal, reports, and settings with HTTP 200 plus expected rendered content.
+  - Updated README, final system report, project status, and roadmap to reflect v1.0 local/demo status and remaining limitations.
+  - Final verification passed: `python3 scripts/run_tests.py` passed with 48 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed; API and built-web route smoke passed. DuckDB remained an optional unavailable dependency in the global Python context. In-app browser visual smoke remained blocked by runtime initialization.

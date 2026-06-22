@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+
+# Local data
+data/sqlite/*.db
+data/sqlite/*.db-*
+data/duckdb/*.duckdb
+data/cache/*
+!data/cache/.gitkeep
+
+# Env and secrets
+.env
+.env.local
+.env.*.local
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
