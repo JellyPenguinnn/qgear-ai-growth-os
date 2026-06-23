@@ -4,9 +4,9 @@ Last updated: 2026-06-23
 
 ## Current Milestone
 
-Active milestone: v2.0 Polished Release Pass, locally verified and ready to push.
+Active milestone: v2.0 Polished Release Pass, locally verified and pushed to GitHub.
 
-v1.0 local/demo completion was achieved on 2026-06-22 and pushed as commit `26d55a4`. The current upgrade track is v1.0 -> v2.0. The v2.0 local release pass is verified locally on 2026-06-23; GitHub-hosted CI still needs to be observed after push.
+v1.0 local/demo completion was achieved on 2026-06-22 and pushed as commit `26d55a4`. The v2.0 local release pass was verified locally on 2026-06-23 and pushed to `main` as commit `f167a3d`. GitHub-hosted CI still needs to be observed because the local `gh` CLI is unavailable and the GitHub connector did not return push-triggered workflow runs.
 
 Important working-tree note: `AGENTS.md` was modified before this run and was not edited during the v2.0 release pass. It is included in the release as the current repo contract.
 
