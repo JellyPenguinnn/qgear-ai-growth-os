@@ -19,12 +19,16 @@ export function ThesisForm({ ticker }: { ticker: string }) {
         .filter(Boolean),
       next_review_date: String(form.get("next_review_date") ?? "")
     };
-    const response = await fetch(`${API_URL}/theses/${ticker}/approve`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    setMessage(response.ok ? "Thesis approved locally." : "Could not save thesis. Check that the API is running.");
+    try {
+      const response = await fetch(`${API_URL}/theses/${ticker}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setMessage(response.ok ? "Thesis approved locally." : "Could not save thesis. Check that the API is running.");
+    } catch {
+      setMessage("API unavailable. Thesis draft was not saved; no action state changes without backend confirmation.");
+    }
   }
 
   return (

@@ -18,12 +18,16 @@ export function PositionForm() {
       thesis_status: String(form.get("thesis_status") ?? "DRAFT"),
       next_review_date: String(form.get("next_review_date") ?? "")
     };
-    const response = await fetch(`${API_URL}/portfolio/positions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    setMessage(response.ok ? "Position recorded locally." : "Could not record position. Check that the API is running.");
+    try {
+      const response = await fetch(`${API_URL}/portfolio/positions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setMessage(response.ok ? "Position recorded locally." : "Could not record position. Check that the API is running.");
+    } catch {
+      setMessage("API unavailable. Manual portfolio read mode still works, but this position was not saved.");
+    }
   }
 
   return (

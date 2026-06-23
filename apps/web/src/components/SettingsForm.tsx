@@ -25,12 +25,16 @@ export function SettingsForm() {
       options_enabled: false,
       auto_trading_enabled: false
     };
-    const response = await fetch(`${API_URL}/settings`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    setMessage(response.ok ? "Settings saved locally." : "Could not save settings. Check that the API is running.");
+    try {
+      const response = await fetch(`${API_URL}/settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setMessage(response.ok ? "Settings saved locally." : "Could not save settings. Check that the API is running.");
+    } catch {
+      setMessage("API unavailable. Demo settings remain visible, but changes were not saved.");
+    }
   }
 
   return (

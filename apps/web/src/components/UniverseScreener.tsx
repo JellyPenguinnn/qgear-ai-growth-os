@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 import { StateBadge } from "./StateBadge";
+import { EmptyState, SectionCard } from "./ui";
 import type { DemoCompany } from "@/lib/types";
 
 export function UniverseScreener({ companies }: { companies: DemoCompany[] }) {
@@ -28,7 +29,7 @@ export function UniverseScreener({ companies }: { companies: DemoCompany[] }) {
   });
 
   return (
-    <section className="section">
+    <SectionCard title="Screener" description="Use filters to prioritize research. A filtered list is not a buy list.">
       <div className="filters">
         <div className="field">
           <label htmlFor="layer">AI layer</label>
@@ -70,46 +71,52 @@ export function UniverseScreener({ companies }: { companies: DemoCompany[] }) {
         </div>
       </div>
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Ticker</th>
-              <th>Company</th>
-              <th>AI layer</th>
-              <th>Score</th>
-              <th>State</th>
-              <th>Growth</th>
-              <th>GM</th>
-              <th>FCF margin</th>
-              <th>Drawdown</th>
-              <th>Evidence</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((company) => (
-              <tr key={company.ticker}>
-                <td>
-                  <Link href={`/universe/${company.ticker}` as Route}>
-                    <strong>{company.ticker}</strong>
-                  </Link>
-                </td>
-                <td>{company.company_name}</td>
-                <td>{company.ai_layer.replaceAll("_", " ")}</td>
-                <td>{company.score.total.toFixed(1)}</td>
-                <td>
-                  <StateBadge state={company.status} />
-                </td>
-                <td>{company.metrics.revenue_growth_pct.toFixed(1)}%</td>
-                <td>{company.metrics.gross_margin_pct.toFixed(1)}%</td>
-                <td>{company.metrics.fcf_margin_pct.toFixed(1)}%</td>
-                <td>{company.metrics.drawdown_from_high_pct.toFixed(1)}%</td>
-                <td>{company.evidence_summary}</td>
+      {filtered.length ? (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticker</th>
+                <th>Company</th>
+                <th>AI layer</th>
+                <th>Score</th>
+                <th>State</th>
+                <th>Growth</th>
+                <th>GM</th>
+                <th>FCF margin</th>
+                <th>Drawdown</th>
+                <th>Blocker / reason</th>
+                <th>Evidence</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+            </thead>
+            <tbody>
+              {filtered.map((company) => (
+                <tr key={company.ticker}>
+                  <td>
+                    <Link href={`/universe/${company.ticker}` as Route}>
+                      <strong>{company.ticker}</strong>
+                    </Link>
+                  </td>
+                  <td>{company.company_name}</td>
+                  <td>{company.ai_layer.replaceAll("_", " ")}</td>
+                  <td>{company.score.total.toFixed(1)}</td>
+                  <td>
+                    <StateBadge state={company.status} />
+                  </td>
+                  <td>{company.metrics.revenue_growth_pct.toFixed(1)}%</td>
+                  <td>{company.metrics.gross_margin_pct.toFixed(1)}%</td>
+                  <td>{company.metrics.fcf_margin_pct.toFixed(1)}%</td>
+                  <td>{company.metrics.drawdown_from_high_pct.toFixed(1)}%</td>
+                  <td>{company.decision?.blocked_reasons?.[0] ?? company.decision?.reasons?.[0] ?? "Review thesis and evidence."}</td>
+                  <td>{company.evidence_summary}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <EmptyState title="No names match these filters" detail="Relax one filter or return to all states before making research conclusions." />
+      )}
+    </SectionCard>
   );
 }

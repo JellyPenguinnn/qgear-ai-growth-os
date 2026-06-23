@@ -1,22 +1,25 @@
 # Q-GEAR AI Growth OS
 
+[![CI](https://github.com/JellyPenguinnn/qgear-ai-growth-os/actions/workflows/ci.yml/badge.svg)](https://github.com/JellyPenguinnn/qgear-ai-growth-os/actions/workflows/ci.yml)
+
 Q-GEAR AI Growth OS is a local, personal-use US equity research operating system for AI-era growth stocks. Q-GEAR means Quality, Growth, Earnings Acceleration, AI Infrastructure Relevance, and Risk Control.
 
 The app is not an advisory product, not an auto-trader, and not a day-trading system. It is a local research, scoring, portfolio, and decision-journal tool.
 
 > This tool is for personal research and educational use only. It does not provide licensed financial advice, tax advice, or legal advice. Final investment decisions are made by the user.
 
-## What The Local v1.0 Demo Includes
+## What The Local Demo Includes
 
 - Pure Python scoring, hard-gate decision policy, drawdown modes, and position sizing logic.
 - FastAPI backend with demo universe, stock detail, settings, thesis approval, portfolio, journal, earnings lab, provider metadata, valuation, alerts, and report routes.
 - SQLite app-state schema for settings, approved theses, manual positions, journal entries, structured evidence, and earnings reviews.
 - Optional DuckDB analytics tables for scoring and benchmark snapshots.
-- Next.js frontend with dashboard, AI universe screener, stock detail, thesis form, portfolio tracker, journal, earnings lab, reports, and settings.
+- Next.js frontend with Today, Research Pipeline, Evidence Workbench, AI universe screener, stock detail, thesis form, portfolio tracker, journal, earnings lab, reports, and settings.
 - Mock/demo seed universe for NVDA, AMD, AVGO, MRVL, TSM, ASML, AMAT, LRCX, KLAC, MU, SNDK, WDC, STX, ANET, CSCO, CIEN, MSFT, GOOGL, AMZN, META, ORCL, VRT, ETN, PWR, CEG, NRG, EQIX, DLR, PLTR, NOW, CRWD, DDOG, SNOW, and MDB.
 - Provider foundation for SEC metadata, mock prices, benchmark snapshots, FRED/EIA placeholders, source provenance, and demo/live routing.
-- Earnings/evidence engine, valuation/IRR engine, fixture no-lookahead backtest skeleton, local alerts, journal analytics, and review-cycle reports.
-- Tests for anti-buy-the-dip gates, thesis requirements, earnings weakening, valuation hurdle, concentration cap, hard drawdown mode, provider metadata, alerts, report routes, and no-lookahead validation.
+- Earnings/evidence engine, editable valuation underwriting workbench, probability-weighted IRR, portfolio/journal intelligence, fixture no-lookahead backtest skeleton, local alerts, and review-cycle reports.
+- Optional AI provider foundation with disabled-by-default mode, draft-only AI routes, schema validation, explicit external-provider acknowledgement, and no automatic decision mutation.
+- Tests for anti-buy-the-dip gates, thesis requirements, earnings weakening, weighted valuation hurdle, concentration cap, hard drawdown mode, portfolio/journal intelligence, provider metadata, AI draft safety, alerts, report routes, and no-lookahead validation.
 
 ## Local Setup
 
@@ -71,6 +74,9 @@ API smoke checks:
 ```bash
 ./scripts/dev_api.sh
 curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/today
+curl http://127.0.0.1:8000/pipeline
+curl http://127.0.0.1:8000/ai/status
 curl http://127.0.0.1:8000/universe
 curl http://127.0.0.1:8000/portfolio
 curl http://127.0.0.1:8000/earnings
@@ -79,6 +85,7 @@ curl http://127.0.0.1:8000/providers/status
 curl http://127.0.0.1:8000/alerts
 curl http://127.0.0.1:8000/journal/analytics
 curl http://127.0.0.1:8000/valuation/NVDA
+curl -X POST http://127.0.0.1:8000/valuation/NVDA/calculate -H "Content-Type: application/json" -d '{...}'
 ```
 
 Frontend checks after `npm install` or `npm ci`:
@@ -90,6 +97,10 @@ npm run typecheck
 npm run build
 npm audit --omit=dev
 ```
+
+## CI
+
+GitHub Actions is configured in `.github/workflows/ci.yml`. It runs the Python/API checks, seed validation, frontend lint/typecheck/build, and production dependency audit. See `docs/ci.md` for the command matrix and current limitations.
 
 If `npm install` fails because of registry/network errors, do not treat the frontend as verified. Record the command and error in `docs/iteration_log.md`.
 
@@ -127,16 +138,18 @@ The current scoring weights and cutoffs are deterministic MVP heuristics. The re
 
 ## Data Sources
 
-v0.2 keeps mock/demo mode as the default and adds provider metadata foundations:
+The current local/demo system keeps mock/demo mode as the default and exposes provider metadata foundations:
 
 - SEC EDGAR company facts, submissions, and filing metadata with custom User-Agent, caching, backoff, and <=10 requests/second.
 - Mock daily price snapshots and benchmark snapshots for SPY, QQQ, XLK, and SMH.
 - Provider response metadata including source URL, source/as-of dates when available, retrieved timestamp, cache status, provider status, and errors.
 - Safe FRED and EIA placeholders that do not require API keys in demo mode.
+- Optional AI draft provider mode. Default is `QGEAR_AI_PROVIDER=none`; set `QGEAR_AI_PROVIDER=openai`, `QGEAR_AI_MODEL`, and `OPENAI_API_KEY` only when you intentionally want explicit draft AI assistance.
 - Optional Alpha Vantage, Financial Modeling Prep, Finnhub, Nasdaq Data Link, and experimental yfinance fallback later.
 
 API keys belong in `.env`; no keys are hardcoded.
 Keep `NEXT_PUBLIC_API_URL` pointed at localhost unless you intentionally accept sending local research, journal, and portfolio data to another API host.
+AI routes are draft-only and require explicit user-submitted text. In OpenAI mode, each POST must acknowledge external AI use before any supplied text is sent.
 
 ## Known Limitations
 

@@ -27,6 +27,8 @@ class ApiSettings:
         "qgear-ai-growth-os personal research app contact@example.com",
     )
     sec_max_requests_per_second: int = int(os.getenv("SEC_MAX_REQUESTS_PER_SECOND", "10"))
+    ai_provider: str = os.getenv("QGEAR_AI_PROVIDER", "none")
+    ai_model: str | None = os.getenv("QGEAR_AI_MODEL")
     openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
     alpha_vantage_api_key: str | None = os.getenv("ALPHA_VANTAGE_API_KEY")
     fmp_api_key: str | None = os.getenv("FMP_API_KEY")

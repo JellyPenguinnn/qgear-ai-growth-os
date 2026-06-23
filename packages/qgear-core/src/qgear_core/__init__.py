@@ -5,11 +5,23 @@ from qgear_core.earnings import EarningsReview, classify_earnings_review
 from qgear_core.backtest import BacktestObservation, summarize_backtest, validate_no_lookahead
 from qgear_core.risk import classify_drawdown_mode, recommend_position_size
 from qgear_core.scoring import score_from_metrics
-from qgear_core.valuation import ValuationCase, expected_irr_pct, probability_weighted_irr_pct, summarize_valuation
+from qgear_core.valuation import (
+    ValuationAssumptions,
+    ValuationCase,
+    ValuationSensitivityCell,
+    build_sensitivity_table,
+    expected_irr_pct,
+    probability_weighted_irr_pct,
+    summarize_valuation,
+    validate_valuation_cases,
+)
 
 __all__ = [
     "BacktestObservation",
+    "ValuationAssumptions",
     "ValuationCase",
+    "ValuationSensitivityCell",
+    "build_sensitivity_table",
     "classify_drawdown_mode",
     "classify_earnings_review",
     "EarningsReview",
@@ -21,4 +33,5 @@ __all__ = [
     "summarize_backtest",
     "summarize_valuation",
     "validate_no_lookahead",
+    "validate_valuation_cases",
 ]

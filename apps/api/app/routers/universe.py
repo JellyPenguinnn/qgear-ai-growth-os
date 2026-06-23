@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query
 
-from app.db.sqlite import get_thesis, list_journal_entries, list_positions
+from app.db.sqlite import get_thesis, list_evidence_objects, list_journal_entries, list_positions
 from app.serializers import to_jsonable
 from qgear_core.demo import DEMO_UNIVERSE, get_company
 from qgear_core.models import PortfolioContext
@@ -44,6 +44,19 @@ def stock_detail(ticker: str) -> dict:
     thesis = get_thesis(company.ticker)
     positions = [position for position in list_positions() if position["ticker"].upper() == company.ticker]
     journal = [entry for entry in list_journal_entries() if entry["ticker"].upper() == company.ticker]
+    stored_evidence = [
+        {
+            "claim": item["claim"],
+            "evidence": item["evidence"],
+            "source": item["source"],
+            "source_date": item["source_date"],
+            "confidence": item["confidence"],
+            "disproves_if": item["disproves_if"],
+            "related_type": item["related_type"],
+            "id": item["id"],
+        }
+        for item in list_evidence_objects(company.ticker)
+    ]
     metrics = company.metrics
     current_position_value = sum(position["market_value"] for position in positions)
     cash = 1_500 if positions else 2_000
@@ -65,7 +78,7 @@ def stock_detail(ticker: str) -> dict:
         "company": company,
         "business_summary": f"{company.company_name} is classified in {company.ai_layer.value} for demo research workflows. Seed data is not a buy recommendation.",
         "ai_thesis": company.evidence_summary,
-        "evidence_table": company.evidence,
+        "evidence_table": [*stored_evidence, *company.evidence],
         "financial_metrics": {
             "revenue_growth_pct": metrics.revenue_growth_pct,
             "revenue_growth_acceleration_pct": metrics.revenue_growth_acceleration_pct,

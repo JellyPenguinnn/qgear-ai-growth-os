@@ -24,12 +24,20 @@ Limitations:
 
 ## Migration Queue
 
+Status key:
+
+- `TODO`: source note still needs migration.
+- `BLOCKED`: needs live web/source verification before changing strategy logic.
+- `DONE`: source note exists in `docs/research/`.
+
 Migrate the source-library topics from `docs/QGEAR_RESEARCH_SOURCE_LIBRARY.md` into individual notes before changing strategy logic:
 
-- Bessembinder wealth concentration.
-- Quality Minus Junk / quality-growth factor.
-- Novy-Marx gross profitability.
-- Earnings acceleration and post-earnings-announcement drift.
-- Momentum/trend and relative strength.
-- SPIVA benchmark humility.
-- AI infrastructure demand, power, data-center, and semiconductor supply-chain sources.
+- `TODO`: Bessembinder wealth concentration.
+- `TODO`: Quality Minus Junk / quality-growth factor.
+- `TODO`: Novy-Marx gross profitability.
+- `TODO`: Earnings acceleration and post-earnings-announcement drift.
+- `TODO`: Momentum/trend and relative strength.
+- `TODO`: SPIVA benchmark humility.
+- `TODO`: AI infrastructure demand, power, data-center, and semiconductor supply-chain sources.
+
+Do not change scoring weights, hard gates, or research-backed strategy rules based on these topics until the corresponding notes are migrated or explicitly marked as unverified TODOs.

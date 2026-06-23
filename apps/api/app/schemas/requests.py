@@ -27,6 +27,16 @@ DecisionAction = Literal[
 ]
 ThesisStatus = Literal["NOT_STARTED", "DRAFT", "APPROVED", "NEEDS_REVIEW", "BROKEN"]
 Confidence = Literal["LOW", "MEDIUM", "HIGH"]
+MistakeCategory = Literal[
+    "NONE",
+    "THESIS_DRIFT",
+    "EVIDENCE_GAP",
+    "VALUATION_ERROR",
+    "RISK_BUDGET_BREAK",
+    "POSITION_SIZING_ERROR",
+    "PROCESS_SKIP",
+    "OTHER",
+]
 
 
 class OnboardingSettingsRequest(BaseModel):
@@ -85,6 +95,12 @@ class JournalEntryRequest(BaseModel):
     expected_irr_pct: float = Field(ge=-100, le=200)
     future_review_date: str
     later_outcome: str = ""
+    decision_outcome: str = ""
+    mistake_category: MistakeCategory = "NONE"
+    evidence_quality: Confidence = "MEDIUM"
+    followed_system: bool = True
+    later_review: str = ""
+    process_score: float = Field(default=0, ge=0, le=100)
 
 
 class EvidenceObjectRequest(BaseModel):
@@ -127,3 +143,86 @@ class EarningsReviewRequest(BaseModel):
     def report_date_must_be_iso(cls, value: str) -> str:
         date.fromisoformat(value)
         return value
+
+
+class AIBaseRequest(BaseModel):
+    external_ai_acknowledged: bool = False
+
+
+class AIEvidenceExtractionRequest(AIBaseRequest):
+    ticker: str = Field(min_length=1, max_length=10)
+    source_title: str = Field(min_length=3)
+    source_type: str = Field(min_length=3)
+    source_date: str
+    source_url_or_description: str = Field(min_length=3)
+    pasted_text: str = Field(min_length=20)
+
+    @field_validator("source_date")
+    @classmethod
+    def ai_source_date_must_be_iso(cls, value: str) -> str:
+        date.fromisoformat(value)
+        return value
+
+
+class AIEarningsSummaryRequest(AIBaseRequest):
+    ticker: str = Field(min_length=1, max_length=10)
+    fiscal_period: str = Field(min_length=2, max_length=20)
+    report_date: str
+    earnings_text: str = Field(min_length=20)
+    existing_thesis: str = ""
+    existing_evidence: list[EvidenceObjectRequest] = Field(default_factory=list)
+
+    @field_validator("report_date")
+    @classmethod
+    def ai_report_date_must_be_iso(cls, value: str) -> str:
+        date.fromisoformat(value)
+        return value
+
+
+class AIThesisUpdateRequest(AIBaseRequest):
+    ticker: str = Field(min_length=1, max_length=10)
+    existing_thesis: str = Field(min_length=3)
+    evidence: list[EvidenceObjectRequest] = Field(default_factory=list)
+    next_review_date: str
+
+    @field_validator("next_review_date")
+    @classmethod
+    def ai_next_review_date_must_be_iso(cls, value: str) -> str:
+        date.fromisoformat(value)
+        return value
+
+
+class AIDecisionExplainRequest(AIBaseRequest):
+    ticker: str = Field(min_length=1, max_length=10)
+    decision_state: DecisionAction
+    score: float = Field(ge=0, le=100)
+    reasons: list[str] = Field(default_factory=list)
+    blockers: list[str] = Field(default_factory=list)
+    evidence: list[EvidenceObjectRequest] = Field(default_factory=list)
+
+
+class ValuationAssumptionsRequest(BaseModel):
+    revenue_cagr_pct: float = Field(ge=-100, le=200)
+    gross_margin_pct: float = Field(ge=-100, le=100)
+    operating_margin_pct: float = Field(ge=-100, le=100)
+    fcf_margin_pct: float = Field(ge=-100, le=100)
+    terminal_multiple: float = Field(ge=0, le=200)
+    dilution_buyback_pct: float = Field(ge=-100, le=100)
+    net_cash_debt_per_share: float = Field(ge=-10000, le=10000)
+
+
+class ValuationCaseRequest(BaseModel):
+    name: str = Field(min_length=3, max_length=20)
+    probability: float = Field(ge=0, le=1)
+    current_price: float = Field(gt=0)
+    target_price_3y: float = Field(ge=0)
+    target_price_5y: float = Field(ge=0)
+    notes: str = Field(min_length=3)
+    assumptions: ValuationAssumptionsRequest
+    evidence_refs: list[str] = Field(default_factory=list)
+
+
+class ValuationUnderwriteRequest(BaseModel):
+    ticker: str = Field(min_length=1, max_length=10)
+    hurdle_irr_pct: float = Field(default=15, ge=0, le=100)
+    cases: list[ValuationCaseRequest] = Field(min_length=1)

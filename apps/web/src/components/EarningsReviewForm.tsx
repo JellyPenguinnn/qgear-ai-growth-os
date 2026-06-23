@@ -5,6 +5,7 @@ import { API_URL } from "@/lib/api";
 
 export function EarningsReviewForm() {
   const [message, setMessage] = useState("");
+  const [journalDraft, setJournalDraft] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,17 +39,24 @@ export function EarningsReviewForm() {
       action_change: "NO_ACTION",
       evidence: [evidence]
     };
-    const response = await fetch(`${API_URL}/earnings/${ticker}/reviews`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    if (!response.ok) {
-      setMessage("Could not save earnings review. Check the ticker, evidence fields, and API status.");
-      return;
+    try {
+      const response = await fetch(`${API_URL}/earnings/${ticker}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        setMessage("Could not save earnings review. Check the ticker, evidence fields, and API status.");
+        return;
+      }
+      const body = (await response.json()) as { thesis_status_change?: string };
+      setMessage(`Earnings review saved locally. Thesis status change: ${body.thesis_status_change ?? "UNCHANGED"}.`);
+      setJournalDraft(
+        `NO_ACTION journal draft for ${ticker}: earnings review classified thesis as ${body.thesis_status_change ?? "UNCHANGED"}. Evidence: ${evidence.claim}. Invalidation check: ${evidence.disproves_if}. Review valuation, technical regime, evidence freshness, and risk budget before any action.`
+      );
+    } catch {
+      setMessage("API unavailable. Manual/demo review remains readable, but this evidence was not saved.");
     }
-    const body = (await response.json()) as { thesis_status_change?: string };
-    setMessage(`Earnings review saved locally. Thesis status change: ${body.thesis_status_change ?? "UNCHANGED"}.`);
   }
 
   return (
@@ -84,9 +92,9 @@ export function EarningsReviewForm() {
         </div>
         <div className="field">
           <label htmlFor="confidence">Confidence</label>
-          <select id="confidence" name="confidence" defaultValue="HIGH">
-            <option>HIGH</option>
+          <select id="confidence" name="confidence" defaultValue="MEDIUM">
             <option>MEDIUM</option>
+            <option>HIGH</option>
             <option>LOW</option>
           </select>
         </div>
@@ -111,11 +119,11 @@ export function EarningsReviewForm() {
         </div>
         <div className="field wide">
           <label htmlFor="claim">Evidence claim</label>
-          <input id="claim" name="claim" defaultValue="AI demand became more measurable after earnings." required />
+          <input id="claim" name="claim" placeholder="State the claim supported by this source." required />
         </div>
         <div className="field wide">
           <label htmlFor="evidence">Evidence detail</label>
-          <textarea id="evidence" name="evidence" defaultValue="Revenue growth, guidance, AI evidence, margin, or FCF changed." required />
+          <textarea id="evidence" name="evidence" placeholder="Paste or summarize the revenue, guidance, AI evidence, margin, or FCF facts." required />
         </div>
         <div className="field wide">
           <label htmlFor="source">Source</label>
@@ -123,7 +131,7 @@ export function EarningsReviewForm() {
         </div>
         <div className="field wide">
           <label htmlFor="management_tone">Management tone</label>
-          <textarea id="management_tone" name="management_tone" defaultValue="Evidence reviewed manually; no automatic action." required />
+          <textarea id="management_tone" name="management_tone" defaultValue="Neutral until sourced evidence proves otherwise." required />
         </div>
         <div className="field wide">
           <label htmlFor="disproves_if">Disproves if</label>
@@ -136,6 +144,11 @@ export function EarningsReviewForm() {
         </button>
         {message ? <span className="muted" aria-live="polite">{message}</span> : null}
       </div>
+      {journalDraft ? (
+        <div className="callout compact">
+          <strong>Draft journal note:</strong> {journalDraft}
+        </div>
+      ) : null}
     </form>
   );
 }

@@ -155,7 +155,12 @@ def evaluate_decision(decision_input: DecisionInput) -> DecisionResult:
             drawdown_mode=drawdown_mode,
         )
 
-    if decision_input.expected_irr_base_pct < decision_input.hurdle_irr_pct:
+    decision_grade_expected_irr = (
+        decision_input.expected_irr_weighted_pct
+        if decision_input.expected_irr_weighted_pct is not None
+        else decision_input.expected_irr_base_pct
+    )
+    if decision_grade_expected_irr < decision_input.hurdle_irr_pct:
         blocked.append("Valuation does not support the required expected IRR.")
         state = DecisionState.HOLD if decision_input.portfolio.owned else DecisionState.WATCHLIST
         return _result(

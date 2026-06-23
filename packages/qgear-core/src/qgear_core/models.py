@@ -153,6 +153,7 @@ class DecisionInput:
     evidence_age_days: int
     portfolio: PortfolioContext
     fresh_positive_evidence: bool
+    expected_irr_weighted_pct: float | None = None
     price_change_pct: float = 0
     add_requested: bool = False
     guidance_cut_structural: bool = False

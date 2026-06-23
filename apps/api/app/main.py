@@ -6,7 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.analytics import init_duckdb
 from app.db.sqlite import init_db
-from app.routers import alerts, earnings, journal, portfolio, providers, reports, settings as settings_router, theses, universe, valuation
+from app.routers import ai, alerts, earnings, journal, pipeline, portfolio, providers, reports, settings as settings_router, theses, today, universe, valuation
+from qgear_ai.providers import build_ai_provider
+from qgear_ai.service import AIResearchService
 
 DISCLAIMER = (
     "This tool is for personal research and educational use only. It does not provide licensed financial "
@@ -24,6 +26,9 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(settings_router.router)
+    app.include_router(ai.router)
+    app.include_router(today.router)
+    app.include_router(pipeline.router)
     app.include_router(alerts.router)
     app.include_router(universe.router)
     app.include_router(theses.router)
@@ -42,6 +47,9 @@ def create_app() -> FastAPI:
     @app.get("/health")
     def health() -> dict:
         duckdb_status = init_duckdb()
+        ai_status = AIResearchService(
+            build_ai_provider(settings.ai_provider, api_key=settings.openai_api_key, model=settings.ai_model)
+        ).status()
         return {
             "status": "ok",
             "mode": settings.environment,
@@ -51,6 +59,7 @@ def create_app() -> FastAPI:
                 "mode": settings.environment,
                 "live_data_required": False,
             },
+            "ai": ai_status,
             "auto_trading": "disabled",
             "margin": "disabled",
             "options": "disabled_in_mvp",

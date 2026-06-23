@@ -1,20 +1,23 @@
 import { UniverseScreener } from "@/components/UniverseScreener";
-import { getUniverse } from "@/lib/api";
+import { PageHeader, ProviderStatusBadge } from "@/components/ui";
+import { getProviderStatus, getUniverse } from "@/lib/api";
 
 export default async function UniversePage() {
-  const universe = await getUniverse();
+  const [universe, providers] = await Promise.all([getUniverse(), getProviderStatus()]);
 
   return (
     <div className="page">
-      <section className="section">
-        <div className="section-header">
-          <div>
-            <h1>AI Universe Screener</h1>
-            <p className="muted">Filter by layer, score, decision state, margins, growth, and drawdown. Seed data is demo research data.</p>
-          </div>
-          <span className="badge">{universe.count} tickers</span>
-        </div>
-      </section>
+      <PageHeader
+        eyebrow="Universe"
+        title="AI Infrastructure Research Universe"
+        description="Filter by layer, score, state, margins, growth, and drawdown. Seed data is demo research data, not recommendations."
+        actions={
+          <>
+            <ProviderStatusBadge mode={providers.mode} />
+            <span className="badge">{universe.count} tickers</span>
+          </>
+        }
+      />
       <UniverseScreener companies={universe.companies} />
     </div>
   );

@@ -1,99 +1,259 @@
 # Roadmap
 
-## v0.1.1 — Hardening and Verification
+This roadmap tracks the v1.0 to v2.0 upgrade path. `AGENTS.md` is the fixed repo contract; this file is the evolving milestone plan.
 
-- Fix frontend lint, typecheck, and build.
-- Pin frontend dependencies from the lockfile.
-- Add seed/demo universe validation.
-- Add missing hard-gate tests.
-- Add API examples and PM tracking docs.
-- Remove local path leakage from health output.
-- Keep demo mode fully runnable without API keys.
+## v1.0 — Local/Demo Research OS
 
-## v0.1.2 — API and Persistence Tightening
+Status: completed on 2026-06-22.
 
-- Add file-backed FastAPI smoke tests.
-- Add response models for key routes.
-- Enforce safer portfolio/journal API guardrails.
-- Improve portfolio settings persistence for cash and drawdown assumptions.
-- Add structured evidence storage for journal entries.
+- Completed: pure Q-GEAR decision brain, FastAPI backend, Next.js frontend, SQLite state, optional DuckDB analytics, demo universe, provider metadata, earnings/evidence, valuation, reports, alerts, and local journal workflows.
+- Completed: end-to-end local flow for settings, universe, stock detail, thesis, valuation, earnings evidence, risk-aware sizing, journal, and reports.
+- Caveat: live providers and browser visual smoke remain limited by environment/provider availability.
 
-## v0.2 — Data Foundation
+## v1.0.1 — Repo Quality And CI
 
-- Add price provider contracts and mock daily OHLC snapshots.
-- Add benchmark snapshot support for SPY, QQQ, XLK, and SMH.
-- Add SEC submissions and filing metadata provider.
-- Add provider response metadata: source date, retrieved at, cached at, as-of date, status, and error fields.
-- Keep live providers optional and demo mode default.
+Status: locally completed on 2026-06-23.
+
+Goal: make the repository verifiable and coherent before major product changes.
 
 Exit criteria:
 
-- Demo mode works without API keys.
-- Provider failures degrade gracefully with metadata/error status.
-- Provider source metadata is visible through API responses.
-- File-backed provider tests pass without live network access.
-- No provider data creates buy/add actions by itself.
+- Completed: GitHub Actions workflow exists.
+- Completed: CI command matrix is documented.
+- Completed: README exposes CI status.
+- Completed: local CI-equivalent checks pass.
+- Completed: no secrets, local DBs, caches, virtualenvs, `node_modules`, or build outputs are tracked.
+- Completed: no Q-GEAR investment guardrail is weakened.
+- Caveat: GitHub-hosted Actions run was not observed in this session.
 
-## v0.3 — Earnings and Evidence Engine
+Accepted scope:
 
-- Add earnings calendar/provider interface.
-- Add structured earnings analysis objects.
-- Add thesis strengthened/unchanged/weakened/broken workflow from sourced evidence.
-- Add prompts and validation for AI extraction JSON.
+- Reconcile stale docs that still say CI is missing.
+- Add `docs/ci.md`.
+- Keep GitHub-hosted Actions run verification honest until pushed/observed.
 
-Exit criteria:
+Deferred:
 
-- User can perform pre-earnings and post-earnings reviews.
-- Fresh positive evidence is required for add actions.
-- Weakening evidence blocks buy/add.
-- Evidence objects include claim, evidence, source, source date, confidence, and disproof criteria.
-- Earnings-strengthened and earnings-weakened tests pass.
+- Full browser visual regression.
+- Process-level API curl smoke in GitHub Actions.
+- Built Next route smoke in GitHub Actions.
+- Python dependency lock/audit.
+- Secret-scanning workflow.
 
-## v0.4 — Valuation and Backtesting
+## v1.1 — UX Audit And Information Architecture
 
-- Add bear/base/bull valuation cases.
-- Add expected IRR engine with dilution, net cash/debt, and margin assumptions.
-- Add no-look-ahead backtesting with filing/availability dates.
-- Add benchmark comparison reports.
+Status: completed on 2026-06-23.
 
-Exit criteria:
+Goal: make the product understandable before rewriting visuals.
 
-- Buy/add requires valuation hurdle clearance.
-- Great company with poor expected IRR becomes Watch/Hold, not Buy/Add.
-- Backtest code is separated from live decision state.
-- Backtest docs explain no-lookahead limits.
-- Valuation edge-case tests pass.
+Deliverables:
 
-## v0.5 — Reports and Local Alerts
-
-- Completed: expanded daily brief, weekly ranking, monthly review, quarterly earnings review, and annual strategy audit.
-- Completed: added local alert rules for filings, earnings thesis risk, stale evidence, technical breaks, concentration, drawdown, and thesis review dates.
-- Completed: added journal analytics for action mix, evidence coverage, and unresolved outcomes.
+- Completed: `docs/ux_audit.md`.
+- Completed: `docs/information_architecture.md`.
+- Completed: `docs/user_journey_v2.md`.
+- Completed: screen-by-screen simplification plan.
+- Completed: v2 IA around Today, Pipeline, Universe, Workbench, Earnings, Portfolio, Journal, Reports, and Settings.
 
 Exit criteria:
 
-- Completed: reports are generated from local/demo state.
-- Completed: daily brief keeps “no action unless evidence changed” as the default stance.
-- Completed: alerts never become trade instructions.
-- Completed: journal analytics and report routes are tested.
+- UX audit is complete.
+- IA map is complete.
+- First-5-minutes user journey is defined.
+- Next UI milestone has clear acceptance criteria.
 
-## v1.0 — Complete Local Personal Research OS
+## v1.2 — Visual Redesign Foundation
 
-- Completed: stable local/demo app with documented setup and smoke tests.
-- Completed: configurable provider foundation exists, with live providers still optional and demo mode default.
-- Completed: evidence-backed stock memos, thesis approval, invalidation rules, risk-aware sizing, journal workflows, benchmark reporting, and no brokerage execution.
-- Completed: final documentation pass for current local/demo functionality, known limitations, and safe future provider work.
-- Blocked by environment: browser visual smoke if the in-app browser runtime is available.
+Status: completed on 2026-06-23.
+
+Goal: make the app clean, modern, calm, and professional.
+
+Deliverables:
+
+- Reusable shell, navigation, metric, decision, evidence, blocker, review queue, provider status, empty-state, and section components.
+- Broader design tokens for spacing, radius, shadows, typography, semantic state colors, and responsive layouts.
+- Consistent redesign of dashboard/Today, universe, stock detail, earnings, portfolio, journal, reports, and settings.
 
 Exit criteria:
 
-- Completed: end-to-end flow works: settings, universe, stock detail, thesis, valuation, earnings evidence, risk confirmation, sizing, journal, reports, benchmark/risk review.
-- Completed: actionable outputs show state, reasons, blockers, evidence, source metadata, confidence, disproof criteria, risk impact, and audit trail in API/UI surfaces.
-- Completed: tests, docs, and known limitations are current.
+- Frontend lint/typecheck/build pass.
+- Major pages share a consistent layout.
+- Decision state, blockers, evidence, and next action/review task are visually obvious.
+- No trading-signal vibe.
 
-## Future Work After v1.0
+## v1.3 — Today Page And Research Pipeline
 
-- Add GitHub CI for Python tests, compile checks, frontend lint/typecheck/build, and dependency audit.
-- Verify live SEC/FRED/EIA/provider behavior with real credentials and network access.
-- Expand backtesting beyond fixtures with historical provider data and strict availability timestamps.
-- Add visual regression/browser smoke when the in-app browser runtime is available.
+Status: completed on 2026-06-23.
+
+Goal: make the app tell the user what matters now without becoming a signal bot.
+
+Deliverables:
+
+- Completed: API-backed Today page with daily stance, review queue, alert summary, top blockers, provider mode, and research-priority rankings demoted below review prompts.
+- Completed: `/pipeline` board grouped by Q-GEAR decision state with reasons, blockers, review flags, next task, and evidence/source metadata.
+- Completed: `/today` and `/pipeline` API routes so workflow logic is not UI-only.
+- Completed: pipeline/alert payloads keep `trade_instruction: false`.
+
+Exit criteria:
+
+- Completed: user can open Today and know what to review.
+- Completed: Pipeline is clearer than a dense table.
+- Completed: alerts and pipeline cards remain review prompts only.
+
+## v1.4 — AI Provider Foundation
+
+Status: completed on 2026-06-23.
+
+Goal: make AI real, optional, explicit, and safe.
+
+Deliverables:
+
+- Completed: expanded `qgear-ai` package with provider interface, `NoopAIProvider`, optional `OpenAIProvider`, schemas, prompts, validation, and service layer.
+- Completed: `QGEAR_AI_PROVIDER=none | openai`, default `none`; API key alone does not enable AI.
+- Completed: `/ai/status` and explicit draft-only AI routes for evidence extraction, earnings summarization, thesis update, and decision explanation.
+- Completed: OpenAI mode requires per-request `external_ai_acknowledged: true` before sending supplied text externally.
+- Completed: tests for disabled mode, schema validation, malformed output rejection, price-only evidence rejection, LOW-confidence action evidence rejection, and no automatic action-state mutation.
+- Completed: Settings UI shows AI disabled/draft-only/no external upload status.
+
+Exit criteria:
+
+- Completed: app works without an AI key.
+- Completed: AI status is visible.
+- Completed: AI calls are explicit user actions.
+- Completed: AI draft outputs require user verification.
+
+## v1.5 — AI Evidence Workbench
+
+Status: completed on 2026-06-23.
+
+Goal: let the user paste source text and convert it into verified evidence.
+
+Deliverables:
+
+- Completed: Evidence Workbench UI at `/evidence`.
+- Completed: source title/type/date/URL-or-description/pasted text fields.
+- Completed: AI extraction button when AI is enabled.
+- Completed: manual verified evidence fallback when AI is disabled.
+- Completed: separate user verification/edit fields before saving evidence.
+- Completed: saved evidence appears in Stock Workbench evidence timeline.
+
+Exit criteria:
+
+- Completed: user can paste an earnings/filing excerpt and save verified evidence.
+- Completed: AI evidence cannot affect decisions until verified.
+- Completed: LOW-confidence or malformed evidence cannot support action-changing decisions.
+
+## v1.6 — AI Earnings Review
+
+Status: completed on 2026-06-23.
+
+Goal: make earnings review the product’s highest-value workflow.
+
+Deliverables:
+
+- Completed: guided pre-earnings and post-earnings workflow.
+- Completed: AI earnings summarizer UI when enabled and explicitly acknowledged.
+- Completed: deterministic thesis strengthened/unchanged/weakened/broken classification remained in the tested core flow.
+- Completed: manual earnings review creates a journal draft that requires user confirmation.
+- Completed: decision blockers make clear that weakened/broken thesis status blocks buy/add and strengthened evidence still needs valuation, technical, freshness, and risk gates.
+
+Exit criteria:
+
+- Completed: manual workflow works with AI disabled.
+- Completed: AI workflow is draft-only when enabled.
+- Completed: weakening evidence blocks buy/add.
+- Completed: strengthened evidence still requires valuation, technical, freshness, and risk gates.
+
+## v1.7 — Stock Workbench Redesign
+
+Status: completed on 2026-06-23.
+
+Goal: make the stock detail page the best screen in the app.
+
+Deliverables:
+
+- Completed: first-screen decision card and summary strip answer state, why, blockers, evidence quality, next review, action permission, and max new money.
+- Completed: Evidence timeline, thesis card, earnings card, valuation card, technical/risk card, portfolio impact card, journal trail, and AI assistant panel.
+- Completed: AI assistant actions for decision explanation, thesis update, evidence extraction, and journal draft are explicit and draft-only.
+- Completed: prompt hardening now treats pasted source material as untrusted data and requires insufficient-evidence language when support is missing.
+
+Exit criteria:
+
+- Completed: user can understand action/blockers quickly.
+- Completed: evidence and disproof criteria are visible.
+- Completed: build/test checks pass.
+
+## v1.8 — Valuation Underwriting Upgrade
+
+Status: completed on 2026-06-23.
+
+Goal: make expected IRR transparent and professional.
+
+Deliverables:
+
+- Completed: editable/API-backed bear/base/bull assumptions.
+- Completed: revenue CAGR, margins, terminal multiple, dilution/buyback, net cash/debt, and probability weights.
+- Completed: stateless `/valuation/{ticker}/calculate` route for local draft underwriting.
+- Completed: sensitivity table and evidence-linked valuation notes.
+- Completed: decision gate can use probability-weighted IRR when supplied.
+
+Exit criteria:
+
+- Completed: expected IRR is transparent.
+- Completed: poor expected IRR blocks action.
+- Completed: valuation cannot create buy/add alone.
+
+## v1.9 — Portfolio And Journal Intelligence
+
+Status: completed and locally verified on 2026-06-23.
+
+Goal: improve behavior and portfolio discipline.
+
+Deliverables:
+
+- Completed: portfolio risk dashboard with cash, drawdown, total-equity position weights, AI-layer exposure, benchmark placeholders, expected IRR distribution, concentration risks, blocked adds, and review calendar.
+- Completed: journal with outcome, mistake category, evidence quality, followed-system flag, later review, and process score.
+- Completed: monthly/quarterly report UX shows richer review prompts and queues.
+- Completed: portfolio AI review visibility is disabled/draft-only and sends nothing automatically.
+
+Exit criteria:
+
+- Completed: portfolio risk is more obvious.
+- Completed: journal helps improve user behavior.
+- Completed: AI review is draft-only.
+- Completed: no brokerage execution exists.
+- Completed: Python tests, compile, seed validation, frontend lint/typecheck/build, dependency audit, API smoke, and built-route smoke passed.
+- Caveat: browser visual smoke remains blocked by the in-app Browser runtime before navigation.
+
+## v2.0 — Polished AI-Assisted Local Research OS
+
+Status: completed and locally verified on 2026-06-23; pending GitHub-hosted CI observation after push.
+
+Goal: complete a polished local personal AI research OS.
+
+Exit criteria:
+
+- Clean impressive UI.
+- Clear user flow.
+- AI research assistance works when configured.
+- Manual workflow works when AI disabled.
+- Evidence workbench works.
+- Earnings workflow works.
+- Valuation workflow works.
+- Portfolio/journal workflow works.
+- Reports are readable.
+- CI and local tests pass.
+- No auto-trading, margin, options-by-default, or buy-the-dip behavior.
+- Demo mode works without keys.
+- External providers are optional and explicit.
+- Docs are current and limitations are honest.
+
+Verification summary:
+
+- `python3 scripts/run_tests.py`: passed, 63 tests.
+- `python3 -m compileall packages apps/api scripts tests`: passed.
+- `python3 scripts/seed_local_data.py`: passed; DuckDB remained optional/unavailable in the global Python context.
+- `npm run lint`, `npm run typecheck`, `npm run build`: passed in `apps/web`.
+- `npm audit --omit=dev`: passed with 0 vulnerabilities after approved registry access.
+- API smoke passed for health, Today, Pipeline, AI status, Universe, Portfolio, Earnings, Weekly report, Alerts, Journal analytics, Valuation, valuation calculate POST, and backtest fixture routes.
+- Built route smoke passed for `/`, `/pipeline`, `/evidence`, `/universe`, `/universe/NVDA`, `/earnings`, `/portfolio`, `/journal`, `/reports`, and `/settings`.
+- Browser visual smoke was attempted but blocked by the in-app Browser runtime initialization issue before navigation.

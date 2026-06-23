@@ -102,11 +102,39 @@ export const fallbackUniverse: UniverseResponse = {
 };
 
 export const fallbackPortfolio: PortfolioSummary = {
+  mode: "frontend_fallback",
+  manual_only: true,
   cash: 1500,
+  cash_pct: 15,
   total_equity: 10000,
   drawdown_pct: 4,
   drawdown_mode: "NORMAL",
   single_stock_concentration_pct: 0,
+  ai_layer_concentration: {},
   expected_portfolio_irr_pct: 0,
+  expected_irr_distribution: {
+    min_pct: 0,
+    max_pct: 0,
+    weighted_pct: 0,
+    note: "Frontend fallback has no manual positions."
+  },
+  benchmark_comparison: ["SPY", "QQQ", "XLK", "SMH"].map((benchmark) => ({
+    benchmark,
+    status: "frontend_fallback",
+    total_return_pct: null,
+    relative_return_pct: null,
+    note: "Benchmark comparison placeholder until the API is available."
+  })),
+  benchmark_comparison_placeholders: {
+    SPY: "frontend fallback",
+    QQQ: "frontend fallback",
+    XLK: "frontend fallback",
+    SMH: "frontend fallback"
+  },
+  concentration_risks: [],
+  blocked_adds: [],
+  review_calendar: [],
+  as_of: "2026-06-22",
+  risk_note: "Frontend fallback portfolio is manual review-only.",
   positions: []
 };

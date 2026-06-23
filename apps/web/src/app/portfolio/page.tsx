@@ -1,67 +1,150 @@
 import { PositionForm } from "@/components/PositionForm";
 import { StateBadge } from "@/components/StateBadge";
-import { getPortfolio } from "@/lib/api";
+import { EmptyState, MetricCard, PageHeader, SectionCard } from "@/components/ui";
+import { getPortfolio, getProviderStatus } from "@/lib/api";
 
 export default async function PortfolioPage() {
-  const portfolio = await getPortfolio();
+  const [portfolio, providerStatus] = await Promise.all([getPortfolio(), getProviderStatus()]);
 
   return (
     <div className="page">
+      <PageHeader
+        eyebrow="Portfolio"
+        title="Portfolio Risk"
+        description="Manual local portfolio with concentration, drawdown mode, cash buffer, and benchmark placeholders."
+        actions={<StateBadge state={portfolio.drawdown_mode === "HARD_AUDIT" ? "BLOCKED_BY_RISK" : "HOLD"} />}
+      />
+
       <section className="section">
-        <div className="section-header">
-          <div>
-            <h1>Portfolio Risk</h1>
-            <p className="muted">Manual local portfolio with concentration, drawdown mode, and benchmark placeholders.</p>
-          </div>
-          <StateBadge state={portfolio.drawdown_mode === "HARD_AUDIT" ? "BLOCKED_BY_RISK" : "HOLD"} />
-        </div>
         <div className="grid cols-4">
-          <div className="panel panel-body metric">
-            <span>Cash</span>
-            <strong>${portfolio.cash.toLocaleString()}</strong>
-            <span>Default buffer target 10-20%</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Total equity</span>
-            <strong>${portfolio.total_equity.toLocaleString()}</strong>
-            <span>Manual holdings plus cash</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Drawdown</span>
-            <strong>{portfolio.drawdown_pct.toFixed(1)}%</strong>
-            <span>{portfolio.drawdown_mode.replaceAll("_", " ")}</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Single-stock concentration</span>
-            <strong>{portfolio.single_stock_concentration_pct.toFixed(1)}%</strong>
-            <span>Absolute cap 15%</span>
-          </div>
+          <MetricCard label="Cash" value={`$${portfolio.cash.toLocaleString()}`} detail={`${portfolio.cash_pct.toFixed(1)}% cash; default buffer target 10-20%`} />
+          <MetricCard label="Total equity" value={`$${portfolio.total_equity.toLocaleString()}`} detail="Manual holdings plus cash" />
+          <MetricCard
+            label="Drawdown"
+            value={`${portfolio.drawdown_pct.toFixed(1)}%`}
+            detail={portfolio.drawdown_mode.replaceAll("_", " ")}
+            tone={portfolio.drawdown_mode === "NORMAL" ? "ok" : "warn"}
+          />
+          <MetricCard
+            label="Single-stock concentration"
+            value={`${portfolio.single_stock_concentration_pct.toFixed(1)}%`}
+            detail="Absolute cap 15%"
+            tone={portfolio.single_stock_concentration_pct >= 15 ? "danger" : "neutral"}
+          />
+          <MetricCard
+            label="Weighted expected IRR"
+            value={`${portfolio.expected_portfolio_irr_pct.toFixed(1)}%`}
+            detail="Research assumption, not a promise"
+            tone={portfolio.expected_portfolio_irr_pct >= 15 ? "ok" : "warn"}
+          />
         </div>
       </section>
 
       <section className="section split">
         <div>
-          <div className="section-header">
-            <h2>Positions</h2>
-          </div>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Ticker</th>
-                  <th>Shares</th>
-                  <th>Avg cost</th>
-                  <th>Current</th>
-                  <th>Market value</th>
-                  <th>P/L</th>
-                  <th>Weight</th>
-                  <th>Status</th>
-                  <th>Review</th>
-                </tr>
-              </thead>
-              <tbody>
-                {portfolio.positions.length ? (
-                  portfolio.positions.map((position) => (
+          <SectionCard title="Risk Dashboard" description={portfolio.risk_note}>
+            <div className="grid cols-3">
+              <div className="callout compact">
+                <strong>Expected IRR distribution</strong>
+                <p>
+                  Min {portfolio.expected_irr_distribution.min_pct.toFixed(1)}% · Weighted{" "}
+                  {portfolio.expected_irr_distribution.weighted_pct.toFixed(1)}% · Max{" "}
+                  {portfolio.expected_irr_distribution.max_pct.toFixed(1)}%
+                </p>
+                <p className="muted">{portfolio.expected_irr_distribution.note}</p>
+              </div>
+              <div className="callout compact">
+                <strong>AI-layer exposure</strong>
+                {Object.keys(portfolio.ai_layer_concentration).length ? (
+                  Object.entries(portfolio.ai_layer_concentration).map(([layer, weight]) => (
+                    <p key={layer}>
+                      {layer.replaceAll("_", " ")}: {weight.toFixed(1)}%
+                    </p>
+                  ))
+                ) : (
+                  <p className="muted">No layer concentration until positions are recorded.</p>
+                )}
+              </div>
+              <div className="callout compact">
+                <strong>Benchmark placeholders</strong>
+                {portfolio.benchmark_comparison.map((benchmark) => (
+                  <p key={benchmark.benchmark}>
+                    {benchmark.benchmark}: {benchmark.status.replaceAll("_", " ")}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Review Queue" description="Blocked adds and review dates are process prompts, never trade instructions.">
+            <div className="grid cols-2">
+              <div>
+                <h3>Blocked Adds</h3>
+                {portfolio.blocked_adds.length ? (
+                  portfolio.blocked_adds.map((item) => (
+                    <p className="warn-text" key={`${item.ticker}-${item.reason}`}>
+                      <strong>{item.ticker}</strong>: {item.reason}
+                    </p>
+                  ))
+                ) : (
+                  <p className="muted">No blocked-add prompts from current manual positions.</p>
+                )}
+                {portfolio.concentration_risks.map((risk) => (
+                  <p className={risk.severity === "high" ? "danger-text" : "warn-text"} key={`${risk.ticker ?? "portfolio"}-${risk.message}`}>
+                    <strong>{risk.ticker ?? "Portfolio"}</strong>: {risk.message}
+                  </p>
+                ))}
+              </div>
+              <div>
+                <h3>Review Calendar</h3>
+                {portfolio.review_calendar.length ? (
+                  portfolio.review_calendar.map((item) => (
+                    <p key={`${item.ticker}-${item.next_review_date}`}>
+                      <strong>{item.ticker}</strong>: {item.next_review_date} · {item.thesis_status}
+                    </p>
+                  ))
+                ) : (
+                  <p className="muted">No review dates recorded yet.</p>
+                )}
+              </div>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="AI Portfolio Review" description="Optional draft assistance only. No portfolio or journal data is sent automatically.">
+            <div className="assistant-status">
+              <span className="eyebrow">AI provider</span>
+              <strong>{providerStatus.ai.ai_enabled ? "Configured" : "Disabled"}</strong>
+              <small>
+                Draft-only: {providerStatus.ai.draft_only ? "yes" : "no"} · Decision mutation:{" "}
+                {providerStatus.ai.mutates_decision_state ? "possible" : "never automatic"}
+              </small>
+            </div>
+            <p className="muted">{providerStatus.ai.external_upload_policy}</p>
+            <button className="button secondary" type="button" disabled>
+              {providerStatus.ai.ai_enabled ? "Portfolio AI draft requires explicit request" : "AI portfolio reviewer disabled"}
+            </button>
+          </SectionCard>
+
+          <SectionCard title="Positions" description="Manual records only. This app does not execute trades.">
+            {portfolio.positions.length ? (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ticker</th>
+                      <th>Shares</th>
+                      <th>Avg cost</th>
+                      <th>Current</th>
+                      <th>Market value</th>
+                      <th>P/L</th>
+                      <th>Weight</th>
+                      <th>Status</th>
+                      <th>Thesis</th>
+                      <th>Review</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {portfolio.positions.map((position) => (
                     <tr key={position.id}>
                       <td>{position.ticker}</td>
                       <td>{position.shares}</td>
@@ -71,22 +154,21 @@ export default async function PortfolioPage() {
                       <td className={position.unrealized_pl >= 0 ? "ok-text" : "danger-text"}>${position.unrealized_pl.toFixed(2)}</td>
                       <td>{position.position_weight_pct.toFixed(1)}%</td>
                       <td>{position.status}</td>
+                      <td>{position.thesis_status}</td>
                       <td>{position.next_review_date}</td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={9}>No manual positions recorded yet.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState title="No manual positions recorded" detail="Add positions here only after trades are made outside Q-GEAR." />
+            )}
+          </SectionCard>
         </div>
-        <div className="panel panel-body">
-          <h2>Record Position</h2>
+        <SectionCard title="Record Position" description="Manual tracking only. No broker execution exists in Q-GEAR.">
           <PositionForm />
-        </div>
+        </SectionCard>
       </section>
     </div>
   );

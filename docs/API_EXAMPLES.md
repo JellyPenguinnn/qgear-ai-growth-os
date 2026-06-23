@@ -38,6 +38,40 @@ curl http://127.0.0.1:8000/universe/NVDA
 
 The response is demo research data and not a recommendation.
 
+## Today And Pipeline
+
+```bash
+curl http://127.0.0.1:8000/today
+curl http://127.0.0.1:8000/pipeline
+```
+
+`/today` is the daily review command center. It returns the default no-action stance, portfolio/risk metrics, priority review queue, pipeline snapshot, alerts, provider status, and top research-priority names.
+
+`/pipeline` is the research board grouped by Q-GEAR decision state. Each pipeline item includes:
+
+```json
+{
+  "ticker": "NVDA",
+  "decision_state": "STARTER_ALLOWED",
+  "action_allowed": true,
+  "trade_instruction": false,
+  "primary_reason": "Thesis confirmed, valuation clears hurdle...",
+  "primary_blocker": "",
+  "review_flags": ["JOURNAL_REVIEW_REQUIRED"],
+  "next_task": "Review the journal draft, position size, and evidence provenance before any manual decision.",
+  "evidence": {
+    "claim": "AI relevance requires measurable business evidence.",
+    "evidence": "Demo data for NVDA: ...",
+    "source": "Q-GEAR demo seed data",
+    "source_date": "2026-06-22",
+    "confidence": "HIGH",
+    "disproves_if": "Future filings, earnings releases, segment data, or guidance contradict the claim."
+  }
+}
+```
+
+Pipeline states are workflow states, not trade instructions. Even `STARTER_ALLOWED` and `ADD_ALLOWED` require user review, journal discipline, and manual action outside the app.
+
 ## Provider Status And Metadata
 
 ```bash
@@ -82,6 +116,71 @@ Provider responses use a stable envelope:
 ```
 
 In demo mode these endpoints use local/mock data and require no API keys. In live mode, SEC responses remain behind cache/backoff/User-Agent controls and provider errors return metadata instead of crashing the app.
+
+Provider status also includes AI provider status. Default mode is disabled:
+
+```json
+{
+  "ai": {
+    "ai_enabled": false,
+    "requires_explicit_request": true,
+    "requires_external_ai_acknowledgement": false,
+    "draft_only": true,
+    "mutates_decision_state": false,
+    "provider_metadata": {
+      "provider": "noop",
+      "mode": "none",
+      "status": "disabled"
+    }
+  }
+}
+```
+
+## AI Draft Routes
+
+AI is optional and disabled by default. A configured API key alone does not enable AI; set `QGEAR_AI_PROVIDER=openai` intentionally.
+
+```bash
+curl http://127.0.0.1:8000/ai/status
+```
+
+Draft-only routes:
+
+```bash
+curl -X POST http://127.0.0.1:8000/ai/evidence/extract \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticker": "NVDA",
+    "source_title": "Manual earnings excerpt",
+    "source_type": "earnings release",
+    "source_date": "2026-06-22",
+    "source_url_or_description": "User-pasted local excerpt",
+    "pasted_text": "Revenue growth accelerated and guidance was raised in the supplied excerpt.",
+    "external_ai_acknowledged": false
+  }'
+curl -X POST http://127.0.0.1:8000/ai/earnings/summarize -H "Content-Type: application/json" -d '{...}'
+curl -X POST http://127.0.0.1:8000/ai/thesis/update -H "Content-Type: application/json" -d '{...}'
+curl -X POST http://127.0.0.1:8000/ai/decision/explain -H "Content-Type: application/json" -d '{...}'
+```
+
+In default disabled mode, responses are safe drafts:
+
+```json
+{
+  "task": "evidence_extraction",
+  "draft_status": "disabled",
+  "provider_metadata": {
+    "provider": "noop",
+    "mode": "none",
+    "status": "disabled",
+    "external_call_performed": false
+  },
+  "requires_user_verification": true,
+  "mutates_decision_state": false
+}
+```
+
+In `openai` mode, POST routes require `external_ai_acknowledged: true` before any supplied text is sent to the configured provider. AI routes never write theses, evidence, earnings reviews, journal entries, positions, or decision states.
 
 ## Settings
 
@@ -141,6 +240,35 @@ curl -X POST http://127.0.0.1:8000/portfolio/positions \
 
 Manual position recording is not trade execution.
 
+Portfolio responses include local review-only analytics:
+
+```json
+{
+  "manual_only": true,
+  "cash_pct": 15.0,
+  "ai_layer_concentration": {},
+  "expected_irr_distribution": {
+    "min_pct": 0,
+    "max_pct": 0,
+    "weighted_pct": 0,
+    "note": "Expected IRR is a research assumption, not a promise."
+  },
+  "benchmark_comparison": [
+    {
+      "benchmark": "SPY",
+      "status": "pending_local_market_data",
+      "total_return_pct": null,
+      "relative_return_pct": null
+    }
+  ],
+  "concentration_risks": [],
+  "blocked_adds": [],
+  "review_calendar": []
+}
+```
+
+`blocked_adds`, concentration risks, and review dates are review prompts only.
+
 ## Journal
 
 ```bash
@@ -159,13 +287,19 @@ curl -X POST http://127.0.0.1:8000/journal \
     "invalidation_rule": "Guidance cut or margin deterioration would weaken thesis.",
     "expected_irr_pct": 16,
     "future_review_date": "2026-09-30",
-    "later_outcome": ""
+    "later_outcome": "",
+    "decision_outcome": "PENDING",
+    "mistake_category": "NONE",
+    "evidence_quality": "HIGH",
+    "followed_system": true,
+    "later_review": "",
+    "process_score": 92
   }'
 ```
 
 Journal entries should record evidence and invalidation logic even when the action is `NO_ACTION`.
 
-`/journal/analytics` summarizes local process discipline: action mix, evidence-backed entries, and unresolved outcomes. It is not a performance claim or trade signal.
+`/journal/analytics` summarizes local process discipline: action mix, evidence-backed entries, evidence quality counts, mistake counts, followed-system rate, average process score, unresolved outcomes, and unresolved later reviews. It is not a performance claim or trade signal.
 
 ## Alerts
 
@@ -242,7 +376,69 @@ The earnings review classifies thesis impact as `STRENGTHENED`, `UNCHANGED`, `WE
 ```bash
 curl http://127.0.0.1:8000/valuation/NVDA
 curl http://127.0.0.1:8000/valuation/PLTR
+curl -X POST http://127.0.0.1:8000/valuation/NVDA/calculate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticker": "NVDA",
+    "hurdle_irr_pct": 15,
+    "cases": [
+      {
+        "name": "bear",
+        "probability": 0.25,
+        "current_price": 100,
+        "target_price_3y": 120,
+        "target_price_5y": 140,
+        "notes": "Bear case with weaker growth.",
+        "assumptions": {
+          "revenue_cagr_pct": 10,
+          "gross_margin_pct": 55,
+          "operating_margin_pct": 25,
+          "fcf_margin_pct": 20,
+          "terminal_multiple": 18,
+          "dilution_buyback_pct": -1,
+          "net_cash_debt_per_share": 0
+        },
+        "evidence_refs": ["verified evidence object or note"]
+      },
+      {
+        "name": "base",
+        "probability": 0.50,
+        "current_price": 100,
+        "target_price_3y": 150,
+        "target_price_5y": 210,
+        "notes": "Base case with evidence-backed assumptions.",
+        "assumptions": {
+          "revenue_cagr_pct": 18,
+          "gross_margin_pct": 60,
+          "operating_margin_pct": 32,
+          "fcf_margin_pct": 28,
+          "terminal_multiple": 25,
+          "dilution_buyback_pct": 0,
+          "net_cash_debt_per_share": 0
+        },
+        "evidence_refs": ["verified evidence object or note"]
+      },
+      {
+        "name": "bull",
+        "probability": 0.25,
+        "current_price": 100,
+        "target_price_3y": 190,
+        "target_price_5y": 300,
+        "notes": "Bull case with stronger growth and margins.",
+        "assumptions": {
+          "revenue_cagr_pct": 25,
+          "gross_margin_pct": 63,
+          "operating_margin_pct": 36,
+          "fcf_margin_pct": 32,
+          "terminal_multiple": 32,
+          "dilution_buyback_pct": 1,
+          "net_cash_debt_per_share": 0
+        },
+        "evidence_refs": ["verified evidence object or note"]
+      }
+    ]
+  }'
 curl http://127.0.0.1:8000/valuation/backtest/demo
 ```
 
-Valuation responses include bear/base/bull cases, 3-year and 5-year probability-weighted IRR, and the hurdle result. Backtest responses are fixture-only and include no-lookahead validation status. They are research checks, not performance promises or trade instructions.
+Valuation responses include bear/base/bull cases, underwriting assumptions, case IRRs, 3-year and 5-year probability-weighted IRR, a sensitivity table, evidence references, notes, and the hurdle result. The calculate route is stateless and does not save assumptions or change decision state. Backtest responses are fixture-only and include no-lookahead validation status. They are research checks, not performance promises or trade instructions.

@@ -183,6 +183,33 @@ class DecisionEngineTests(unittest.TestCase):
         self.assertEqual(result.state, DecisionState.WATCHLIST)
         self.assertIn("Valuation does not support the required expected IRR.", result.blocked_reasons)
 
+    def test_weighted_irr_below_hurdle_blocks_even_when_base_irr_clears(self) -> None:
+        result = evaluate_decision(
+            decision_case(
+                expected_irr_base_pct=22,
+                expected_irr_weighted_pct=9,
+                hurdle_irr_pct=15,
+                score=strong_score(90),
+            )
+        )
+
+        self.assertEqual(result.state, DecisionState.WATCHLIST)
+        self.assertIn("Valuation does not support the required expected IRR.", result.blocked_reasons)
+
+    def test_valuation_clears_without_fresh_evidence_does_not_buy(self) -> None:
+        result = evaluate_decision(
+            decision_case(
+                expected_irr_base_pct=25,
+                expected_irr_weighted_pct=23,
+                fresh_positive_evidence=False,
+                positive_evidence=(),
+            )
+        )
+
+        self.assertNotIn(result.state, {DecisionState.STARTER_ALLOWED, DecisionState.ADD_ALLOWED})
+        self.assertFalse(result.action_allowed)
+        self.assertIn("Thesis and valuation are acceptable, but no fresh action-changing evidence is present.", result.reasons)
+
     def test_hard_drawdown_blocks_normal_risk_taking(self) -> None:
         result = evaluate_decision(
             decision_case(

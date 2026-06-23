@@ -1,66 +1,76 @@
-# AGENTS.md — Q-GEAR AI Growth OS
+# AGENTS.md — Q-GEAR AI Growth OS Permanent Repo Contract
 
-## 0. How to use this file
+## 0. Purpose of this file
 
-This file is the repository-level operating contract for Codex. Read it before changing code. Keep it concise enough for Codex project-instruction limits. If more detail is needed, place it in `docs/` and reference it here.
+This file is the stable, permanent operating contract for Codex and future coding agents working in this repository.
 
-This repo should be managed as a serious local software product and a serious investment-research workflow. Do not treat it as a toy stock picker, signal bot, or auto-trader.
+Do not treat this file as a sprint plan, roadmap, product backlog, or iteration log. Those evolving details belong in:
+
+- `docs/QGEAR_VISION_AND_PRODUCT_SPEC.md`
+- `docs/project_status.md`
+- `docs/roadmap.md`
+- `docs/iteration_log.md`
+- `prompts/`
+
+Only modify this `AGENTS.md` if the user explicitly asks to change the permanent repo contract or if a serious safety/security correction is required.
+
+Before changing code, Codex must read this file and the product spec.
+
+---
 
 ## 1. Project identity
 
-Project name: `qgear-ai-growth-os`
+Repository: `qgear-ai-growth-os`
 
-Full name: Q-GEAR AI Growth OS
+Product name: **Q-GEAR AI Growth OS**
 
-Q-GEAR means: **Quality Growth, Earnings Acceleration, AI Infrastructure Relevance, and Risk Control**.
+Q-GEAR means:
 
-This repository implements a local, personal-use US equity research operating system for a Singapore/Malaysia-based individual investor starting with approximately USD 10,000. The system focuses on US-listed AI-era growth stocks, especially technology and AI infrastructure companies across compute, semiconductors, memory, storage, cloud, networking, data-centre power/cooling, and software monetisation.
+```text
+Quality Growth
+Earnings Acceleration
+AI Infrastructure Relevance
+Risk Control
+```
 
-This is not a public advisory product, not a paid investment service, not an auto-trader, and not a day-trading system. It is a private local research, scoring, portfolio, and decision-journal application.
+The product is a local, personal-use US equity research operating system for AI-era growth stocks. It is intended for a Singapore/Malaysia-based individual investor starting around USD 10,000.
 
-Required disclaimer in user-facing docs/UI:
+This is not a public advisory product, not a paid investment service, not an auto-trader, and not a day-trading system.
+
+Required user-facing disclaimer:
 
 > This tool is for personal research and educational use only. It does not provide licensed financial advice, tax advice, or legal advice. Final investment decisions are made by the user.
 
-## 2. Non-negotiable investment and product rules
+---
+
+## 2. Non-negotiable product and investment rules
+
+These rules must never be removed or weakened:
 
 1. No auto-trading.
-2. No margin trading.
-3. No options trading in the MVP.
-4. No generic buy-the-dip system.
-5. No “buy because price dropped.”
-6. No averaging down without fresh positive fundamental evidence.
-7. No buy/add without an approved thesis and invalidation rule.
-8. Price movement alone is never investment evidence.
-9. Technical analysis is only timing and risk confirmation, not thesis creation.
-10. Every AI-generated investment claim must include evidence, source, confidence, and what would disprove it.
-11. The app must be comfortable saying: “No action justified today.”
-12. The system must benchmark itself against SPY, QQQ, XLK, and SMH.
-13. The app must remain local-first and personal-use.
-14. Never hardcode secrets, API keys, or broker credentials.
+2. No broker execution layer unless explicitly requested in a future milestone.
+3. No margin trading.
+4. No options trading in MVP/default mode.
+5. No generic buy-the-dip system.
+6. No “buy because price dropped.”
+7. No averaging down without fresh positive fundamental evidence.
+8. No buy/add without approved thesis and invalidation rule.
+9. Price movement alone is never evidence.
+10. Technical analysis is timing/risk confirmation only, not thesis creation.
+11. Every action-changing investment claim must include evidence, source, source date, confidence, and what would disprove it.
+12. Score alone must never create buy/add action.
+13. The app must be comfortable saying: “No action justified today.”
+14. The system must benchmark itself against SPY, QQQ, XLK, and SMH.
+15. The app must remain local-first and personal-use.
+16. Never hardcode secrets, API keys, tokens, or broker credentials.
+17. Do not send portfolio, journal, watchlist, or thesis data to external services unless the user explicitly configures that provider.
+18. AI output must be treated as draft research assistance, not final truth.
 
-## 3. Strategy defaults
+---
 
-For a USD 10,000 starting portfolio, use these defaults:
+## 3. Core Q-GEAR decision brain
 
-- Base CAGR objective: 18–22%.
-- Strong objective: 22–25%.
-- Stretch objective: 25–30%.
-- Normal max drawdown budget: 25–30%.
-- Hard max drawdown limit: 35%.
-- Live positions: 6–10.
-- Cash buffer: 10–20%.
-- Max single stock: 15%.
-- Holding period: 1–5 years.
-- Margin: disabled.
-- Options: disabled in MVP.
-- Auto-trading: disabled.
-
-These are strategy settings and research assumptions, not performance promises.
-
-## 4. Core system brain
-
-Implement the decision engine around this formula:
+The decision engine must remain centered on this formula:
 
 ```text
 Final Action =
@@ -76,182 +86,223 @@ AI Relevance
 
 A lower price only improves the valuation input. It does not improve business quality, earnings quality, AI relevance, management execution, competitive advantage, balance-sheet strength, or free cash flow.
 
-Score alone must never create a buy/add action.
+The final action must be:
 
-## 5. Required decision states
+```text
+Score + Hard Gates + Risk Budget + Evidence Freshness + Source Quality
+```
 
-Use professional decision states instead of simple buy/sell/hold only:
+Never:
 
-- `REJECTED`
-- `RESEARCH_CANDIDATE`
-- `WATCHLIST`
-- `APPROVED_THESIS`
-- `APPROVED_VALUATION_ZONE`
-- `TECHNICAL_WAIT`
-- `STARTER_ALLOWED`
-- `ADD_ALLOWED`
-- `HOLD`
-- `TRIM_CANDIDATE`
-- `EXIT_THESIS_BROKEN`
-- `BLOCKED_BY_RISK`
-- `NO_ACTION`
+```text
+Score only
+Price drop only
+AI hype only
+Chart only
+```
 
-## 6. Buy/add blocking rules
+---
 
-A buy or add action must be blocked when any of the following is true:
+## 4. Required decision states
+
+Use professional workflow states, not simple buy/sell labels only:
+
+```text
+REJECTED
+RESEARCH_CANDIDATE
+WATCHLIST
+APPROVED_THESIS
+APPROVED_VALUATION_ZONE
+TECHNICAL_WAIT
+STARTER_ALLOWED
+ADD_ALLOWED
+HOLD
+TRIM_CANDIDATE
+EXIT_THESIS_BROKEN
+BLOCKED_BY_RISK
+NO_ACTION
+```
+
+The UI may translate these into friendly labels, but the domain model must preserve these states.
+
+---
+
+## 5. Required buy/add blockers
+
+A buy/add action must be blocked if any of the following is true:
 
 - No approved thesis exists.
 - No invalidation rule exists.
 - AI relevance is weak or unproven.
-- Latest earnings weakened the thesis.
-- Guidance was cut for structural reasons.
+- Latest earnings weakened or broke the thesis.
+- Guidance was structurally cut.
 - Margin deterioration is unexplained or persistent.
-- Valuation does not support the required expected IRR.
-- Technical regime is broken and there is no stabilisation.
+- Valuation does not support required expected IRR.
+- Technical regime is broken without stabilisation.
 - Portfolio concentration limit would be breached.
 - Evidence is stale.
 - The only positive argument is that price has fallen.
 - Portfolio drawdown is at or above the hard drawdown limit.
+- Evidence object is missing claim, source, source date, confidence, or disproof criteria.
+- Evidence confidence is LOW.
+- User cash buffer or risk budget does not allow new money.
 
-## 7. Valid buy/add evidence
+---
 
-A buy/add decision may be allowed only when the reasoning is based on evidence such as:
+## 6. Valid buy/add evidence
+
+A buy/add decision may only be allowed when reasoning is supported by evidence such as:
 
 - Revenue growth accelerated.
 - AI-related demand became more measurable.
 - AI-related segment, backlog, RPO, order, or customer evidence improved.
 - Gross margin or operating margin expanded.
 - Free cash flow improved.
-- Guidance was raised or management tone materially improved.
-- Valuation supports the required expected return.
+- Guidance was raised.
+- Management tone materially improved and is backed by numbers.
+- Valuation supports required expected return.
 - Technical trend is supportive or stabilising.
 - Portfolio risk budget allows the position size.
 
-## 8. Seven core engines
+Invalid reason:
 
-Preserve these seven engines:
+```text
+The stock is down, so it is cheaper.
+```
 
-1. AI infrastructure causal map.
-2. Quality-growth filter.
-3. Earnings acceleration engine.
-4. Valuation and expected-return underwriting engine.
-5. Technical confirmation engine.
-6. Portfolio risk engine.
-7. Anti-generic guardrail engine.
+Valid reason:
 
-## 9. AI infrastructure map
+```text
+The stock entered a pre-approved valuation zone AND earnings evidence improved AND the technical regime stabilised AND risk budget allows a starter/add.
+```
 
-Classify companies into AI infrastructure layers, including:
+---
 
-- Compute: GPUs, ASICs, accelerators.
-- Memory: HBM, DRAM.
-- Storage: NAND, SSD, HDD, enterprise storage.
-- Foundry: advanced semiconductor manufacturing.
-- Semiconductor equipment: lithography, deposition, etch, inspection.
-- Networking: switches, optical, interconnect.
-- Cloud: hyperscalers and AI platforms.
-- Power/cooling: electrical, thermal, grid, data-centre infrastructure.
-- Software: AI monetisation, cybersecurity, observability, data platforms.
+## 7. Evidence object standard
 
-Do not treat a company as AI-relevant only because management says “AI.” Require measurable evidence where possible.
-
-## 10. Evidence object standard
-
-Represent evidence using a structured object similar to:
+All action-changing claims must use this shape:
 
 ```json
 {
-  "claim": "Revenue growth accelerated due to AI-related demand.",
-  "evidence": "Latest quarter data, management commentary, segment growth, or filing excerpt.",
-  "source": "SEC filing, earnings release, transcript, API data, or manually entered source.",
+  "claim": "Revenue growth accelerated due to measurable AI demand.",
+  "evidence": "Latest quarter data, filing excerpt, earnings release, transcript excerpt, or provider data.",
+  "source": "SEC filing, earnings release, transcript, API data, or manual source.",
   "source_date": "YYYY-MM-DD",
   "confidence": "LOW | MEDIUM | HIGH",
-  "disproves_if": "Guidance is cut, segment demand slows, or margins deteriorate."
+  "disproves_if": "Guidance is cut, demand slows, margins deteriorate, or future filings contradict this."
 }
 ```
 
-All stock actions must be traceable to evidence objects or explicitly marked as demo/mock examples.
+Rules:
 
-## 11. Research source protocol
+- LOW confidence cannot support action-changing buy/add output.
+- Missing source date cannot support action-changing output.
+- AI-generated evidence must be validated before it affects decisions.
+- Manual evidence is allowed but must still follow the same schema.
+- Demo/mock evidence must be clearly labeled as demo/mock.
 
-When adding or changing strategy logic, use reliable sources and document them in `docs/research/`.
+---
 
-Preferred source hierarchy:
+## 8. Strategy defaults
 
-1. Academic papers, official working papers, journal pages, or author/institution pages.
-2. Official company filings and investor relations documents.
-3. Official data-provider/API documentation.
-4. Reputable institutional research from firms such as AQR, S&P Dow Jones Indices, Gartner, IEA, SEC, FRED, EIA, and exchange/data providers.
-5. Reputable financial news only for context, not as core model evidence.
-6. Blogs/social media only as low-confidence context and never as the sole reason for an investment rule.
-
-For each research-backed rule, document:
+Default personal-use portfolio assumptions:
 
 ```text
-Source title:
-Author / institution:
-URL or citation:
-What it supports:
-How Q-GEAR implements it:
-Limitations / caveats:
-Date reviewed:
+Starting portfolio: USD 10,000
+Base objective: 18–22% annualised CAGR
+Strong objective: 22–25%
+Stretch objective: 25–30%
+Normal max drawdown budget: 25–30%
+Hard max drawdown limit: 35%
+Live positions: 6–10
+Cash buffer: 10–20%
+Max single stock: 15%
+Holding period: 1–5 years
+Margin: disabled
+Options: disabled by default
+Auto-trading: disabled
 ```
 
-Do not invent sources. If web access is unavailable, create a `docs/research/TODO_sources.md` note and clearly mark the claim as unverified.
+These are assumptions and risk controls, not performance promises.
 
-## 12. Research-backed strategy anchors to preserve
+---
 
-The system should continue to reflect these evidence anchors:
+## 9. Architecture rules
 
-- Wealth creation is concentrated in a small number of exceptional stocks; this supports a focused research process rather than owning everything.
-- Quality/profitability matters; prefer profitable, growing, safe, well-managed companies and avoid low-quality AI hype.
-- Earnings acceleration and guidance changes matter; quarterly earnings are the main thesis-update event.
-- Momentum/trend and relative strength can support timing and risk control, but they do not create the thesis.
-- Active stock selection is difficult; benchmark honestly against SPY, QQQ, XLK, and SMH.
-- Backtests must avoid look-ahead bias and must use filing/availability dates where possible.
-
-## 13. Technical stack
-
-Use this local-first stack unless there is a strong documented reason to deviate:
-
-- Frontend: Next.js + TypeScript.
-- Backend: Python FastAPI.
-- App DB: SQLite.
-- Analytics DB: DuckDB.
-- Scheduler: APScheduler or a simple local scheduled-job abstraction.
-- Data ingestion: modular providers with mock/demo data first, then real providers.
-- AI layer: prompt templates with structured JSON output and evidence logging.
-
-## 14. Current repository architecture
-
-Respect the current monorepo layout:
+Respect the monorepo layout:
 
 ```text
 apps/
-  api/        FastAPI backend, SQLite state, DuckDB analytics setup
-  web/        Next.js dashboard
+  api/        FastAPI backend
+  web/        Next.js frontend
+
 packages/
-  qgear-core/ Pure scoring, risk, and decision policy
-  qgear-ingest/ Provider interfaces and respectful ingestion utilities
-  qgear-ai/   Evidence schema and prompt helpers
+  qgear-core/ Pure scoring, risk, decision policy, earnings, valuation, backtest logic
+  qgear-ingest/ Provider interfaces and ingestion utilities
+  qgear-ai/   AI prompt, schema, and evidence helpers
+
 data/
   demo/       Demo universe metadata
   sqlite/     Local app DB, ignored except placeholders
   duckdb/     Local analytics DB, ignored except placeholders
   cache/      Provider cache, ignored except placeholders
+
 docs/
+  Product docs, research notes, roadmap, API examples, status
+
 prompts/
+  Codex prompts and AI prompt templates
+
 scripts/
+  Local dev/test/seed scripts
+
 tests/
+  Python unittest suite
 ```
 
-Keep `qgear-core` pure and independent. Do not move the decision brain into the frontend. The API may adapt decision outputs, but the core decision rules must remain testable without the web app or live APIs.
+Hard architecture boundaries:
 
-## 15. Provider and data-source rules
+- Keep `qgear-core` pure and independent.
+- Do not move decision rules into the frontend.
+- Do not make live APIs required for demo mode.
+- Do not let provider failures crash the local app.
+- Keep AI outputs behind validation and evidence schema.
+- The API may adapt domain outputs, but the decision brain must remain testable without web app or live APIs.
 
-v0.1 uses mock/demo data. Add live providers behind interfaces.
+---
 
-Core free providers:
+## 10. AI usage rules
+
+Q-GEAR should use AI to make research easier, clearer, and more disciplined.
+
+AI may:
+
+- Draft stock memos.
+- Summarize earnings releases and transcripts.
+- Extract evidence objects.
+- Compare current quarter vs prior thesis.
+- Surface risks and disproof criteria.
+- Explain blockers in plain English.
+- Generate review checklists.
+- Help the user understand “what changed.”
+
+AI must not:
+
+- Produce ungrounded buy/sell recommendations.
+- Override hard gates.
+- Invent sources.
+- Treat social media as primary evidence.
+- Send private local data externally without explicit provider configuration.
+- Hide uncertainty.
+- Replace the deterministic decision engine.
+
+All AI-generated outputs must be labeled as draft research assistance and must preserve the educational/personal-use disclaimer.
+
+---
+
+## 11. Provider and data-source rules
+
+Core free provider roadmap:
 
 - SEC EDGAR company facts, submissions, filings, and XBRL data.
 - FRED macro data.
@@ -266,168 +317,74 @@ Optional providers:
 
 Experimental fallback:
 
-- `yfinance` may be added later only as experimental fallback, not mission-critical truth.
+- `yfinance` may only be used as an experimental fallback, not mission-critical source of truth.
 
 SEC provider requirements:
 
-- custom User-Agent from env,
-- local cache,
-- retry with backoff,
-- max 10 requests/second,
-- no endpoint hammering,
-- source timestamps stored.
+- Custom User-Agent from env.
+- Local cache.
+- Retry with backoff.
+- Max 10 requests/second.
+- No endpoint hammering.
+- Source timestamps and metadata stored.
 
 Never hardcode API keys. `.env` is local only and must be ignored by git.
 
-## 16. Project Manager operating mode
+---
 
-When the user asks Codex to “check, fix, test, iterate, use subagents, or complete the roadmap,” Codex must operate as a Project Manager plus specialist subagents.
+## 12. UI/UX product rules
 
-The main Codex thread is the **Project Manager**. It owns planning, scope control, merging findings, implementation order, tests, documentation, and final status. The Project Manager must not blindly apply subagent suggestions; it must reconcile conflicts and preserve Q-GEAR rules.
+The product must be clean, clear, impressive, and easy to use.
 
-Project Manager loop:
+Prioritize:
 
-```text
-1. Read AGENTS.md, README.md, docs/, prompts/, tests/, and current git status.
-2. Create or update docs/project_status.md with current milestone, known gaps, tests, and next actions.
-3. Audit the repo against the roadmap and non-negotiables.
-4. Spawn specialist subagents when the task is broad enough.
-5. Consolidate subagent findings into a prioritized implementation plan.
-6. Implement one coherent milestone or fix batch at a time.
-7. Run the relevant tests and smoke checks.
-8. Fix failures and rerun tests until green or clearly blocked.
-9. Update docs/project_status.md and docs/iteration_log.md.
-10. Provide a final report with files changed, tests run, failures, risks, and next milestone.
-```
+- Fewer screens with better hierarchy.
+- Clear “what should I review today?” workflow.
+- Decision cards with reasons and blockers.
+- Progressive disclosure: summary first, details on demand.
+- Plain-English explanations.
+- Evidence/source visibility.
+- Fast local experience.
+- Responsive layout.
+- Professional visual design.
+- Dark/light theme if practical.
+- Clear empty states.
+- Clear demo/live data labels.
+- Clear “not financial advice” language.
 
-Do not skip tests because the change “looks small.” Do not claim verification if a command was not run.
+Avoid:
 
-## 17. Specialist subagent roles
+- Dense tables as the only interface.
+- Too many forms on first view.
+- Ugly default styling.
+- Developer-oriented UI text.
+- Hidden blockers.
+- Buy/sell-looking language without context.
+- Any UI that encourages overtrading.
 
-When explicitly asked to use subagents, spawn focused agents such as:
+---
 
-1. **Strategy Research Agent**
-   - Audits scoring, gates, portfolio rules, and research documentation.
-   - Uses primary/authoritative sources where web is available.
-   - Flags weak or unsupported strategy assumptions.
+## 13. Testing requirements
 
-2. **Core Decision Engine Agent**
-   - Audits `packages/qgear-core`.
-   - Checks scoring, gates, drawdown modes, position sizing, and anti-buy-the-dip tests.
-
-3. **Backend/API Agent**
-   - Audits FastAPI routes, schemas, persistence, provider interfaces, seed loading, and error handling.
-
-4. **Frontend/UI Agent**
-   - Audits Next.js pages, user flow, clarity, fallback data, forms, and visible decision evidence.
-
-5. **Data Ingestion Agent**
-   - Audits SEC/FRED/EIA/provider interfaces, caching, rate limits, source logging, and future live-data readiness.
-
-6. **QA/Test Agent**
-   - Audits unit tests, smoke tests, build scripts, seed validation, CI readiness, and regression coverage.
-
-7. **Security/Privacy Agent**
-   - Audits secrets handling, local-first assumptions, `.gitignore`, file paths, dependency risks, and no-broker/no-autotrade boundaries.
-
-8. **Documentation/PM Agent**
-   - Audits README, docs, API examples, setup instructions, project status, and milestone tracking.
-
-Expected subagent output format:
-
-```text
-Role:
-Scope checked:
-Findings:
-Severity: critical | high | medium | low
-Recommended changes:
-Files likely affected:
-Tests to run:
-Open questions / blockers:
-```
-
-## 18. Iteration and self-monitoring files
-
-Maintain these files when doing multi-step work:
-
-```text
-docs/project_status.md       Current milestone, health, checklist, blockers.
-docs/iteration_log.md        Chronological implementation/testing notes.
-docs/roadmap.md              v0.1.x → v1.0 milestone plan.
-docs/research/               Source-backed strategy and data-provider notes.
-docs/API_EXAMPLES.md         API examples and expected response shapes.
-```
-
-If a file does not exist, create it when useful. Keep updates factual and concise. Do not write fake progress.
-
-## 19. Roadmap and milestone order
-
-Do not attempt the entire dream system in one huge diff. Work in milestones:
-
-### v0.1.1 — hardening and verification
-
-- Clean absolute local paths from docs.
-- Improve `.gitignore`.
-- Verify Python tests and compile checks.
-- Verify or document frontend install/build status.
-- Add API examples.
-- Add seed-data validation.
-- Improve setup docs.
-
-### v0.2 — live SEC and price-data foundation
-
-- SEC submissions/company facts ingestion with cache/rate limits.
-- Filing metadata and source logging.
-- Daily price provider interface.
-- Benchmark snapshots for SPY, QQQ, XLK, SMH.
-- Real financial metric calculation where possible.
-- Clear demo/live mode separation.
-
-### v0.3 — earnings and evidence engine
-
-- Earnings calendar interface.
-- Earnings release/transcript ingestion when provider configured.
-- Structured evidence objects.
-- Earnings summary and thesis-change detection.
-- Guidance and segment metric extraction.
-
-### v0.4 — valuation and backtesting
-
-- Bear/base/bull valuation cases.
-- Expected IRR engine.
-- Backtesting framework with no look-ahead bias.
-- Benchmark comparison.
-- Filing-date availability handling.
-
-### v0.5 — portfolio reports and alerts
-
-- Daily brief.
-- Weekly report.
-- Monthly portfolio review.
-- Quarterly earnings review.
-- Annual strategy audit.
-- Local alert rules.
-
-### v1.0 — complete local personal research OS
-
-- Stable local app with documented setup.
-- Live-data providers configurable but optional.
-- Evidence-backed decision engine.
-- Stock memos, thesis approval, invalidation rules.
-- Portfolio risk and journal workflows.
-- Backtesting and benchmark reporting.
-- No auto-trading, no margin, no options by default.
-
-## 20. Test and verification harness
-
-Use the available commands from repo docs. At minimum for Python/core/API changes:
+For Python/core/API changes, run:
 
 ```bash
 python3 scripts/run_tests.py
 python3 -m compileall packages apps/api scripts tests
+python3 scripts/seed_local_data.py
 ```
 
-For API smoke tests when dependencies are installed:
+For frontend changes, run when dependencies are installed:
+
+```bash
+cd apps/web
+npm run lint
+npm run typecheck
+npm run build
+npm audit --omit=dev
+```
+
+For API smoke when server binding is available:
 
 ```bash
 ./scripts/dev_api.sh
@@ -436,90 +393,129 @@ curl http://127.0.0.1:8000/universe
 curl http://127.0.0.1:8000/portfolio
 curl http://127.0.0.1:8000/earnings
 curl http://127.0.0.1:8000/reports/weekly
+curl http://127.0.0.1:8000/alerts
+curl http://127.0.0.1:8000/valuation/NVDA
 ```
 
-For frontend changes, when `apps/web/node_modules` exists or install succeeds:
+Do not claim verification if a command was not run.
 
-```bash
-cd apps/web
-npm run lint
-npm run build
-```
+If a command fails because of network, environment, missing browser runtime, or unavailable provider credentials, document the blocker honestly.
 
-If `npm install` fails due to network, document the exact error and do not claim the frontend runtime was verified.
+---
 
-## 21. Required tests for decision brain
+## 14. Required regression coverage
 
-Keep or add tests for these scenarios:
+Keep or add tests for:
 
-1. Price falls but fundamentals do not improve → add must be blocked.
-2. No approved thesis → buy must be blocked.
-3. No invalidation rule → buy/add must be blocked.
-4. Thesis exists, earnings improve, valuation attractive, technicals stabilising, risk budget available → starter allowed.
-5. Position concentration exceeds limit → add blocked by risk.
-6. Latest earnings weaken the thesis → do not buy.
-7. Expected IRR below hurdle → watch/hold, not buy.
-8. Portfolio drawdown exceeds 35% → hard audit / defensive mode.
-9. Score is high but hard gate fails → no buy/add.
-10. Evidence stale → watch/hold, not buy/add.
+1. Price falls but fundamentals do not improve → add blocked.
+2. No approved thesis → buy blocked.
+3. No invalidation rule → buy/add blocked.
+4. Thesis exists + earnings improve + valuation attractive + technicals stabilising + risk budget available → starter allowed.
+5. Owned position requires explicit add intent before ADD_ALLOWED.
+6. Concentration exceeds limit → add blocked.
+7. Latest earnings weaken thesis → no buy/add.
+8. Expected IRR below hurdle → watch/hold, not buy/add.
+9. Portfolio drawdown >=35% → hard audit / blocked by risk.
+10. Score high but hard gate fails → no buy/add.
+11. Evidence stale → no buy/add.
+12. LOW-confidence or malformed evidence → no buy/add.
+13. Alerts are review prompts, not trade instructions.
+14. AI-generated evidence requires validation before affecting decisions.
+15. Demo mode works without API keys.
+16. Live provider failures degrade gracefully.
 
-## 22. User flow to preserve
+---
 
-The target end-to-end flow:
+## 15. Research source protocol
+
+When adding or changing strategy logic, document reliable sources under `docs/research/`.
+
+Preferred evidence hierarchy:
+
+1. Academic papers, official working papers, journal pages, or author/institution pages.
+2. Official company filings and investor relations documents.
+3. Official data-provider/API documentation.
+4. Reputable institutional sources such as AQR, S&P Dow Jones Indices, Gartner, IEA, SEC, FRED, EIA, and exchange/data providers.
+5. Reputable financial news only for context, not as core model evidence.
+6. Blogs/social media only as low-confidence context and never as the sole reason for an investment rule.
+
+For each source note, use:
 
 ```text
-Onboarding
-→ build AI universe
-→ screen candidates
-→ open stock deep dive
-→ approve thesis and invalidation rule
-→ calculate position size
-→ user manually trades outside app if desired
-→ journal decision
-→ daily light monitoring
-→ weekly ranking
-→ monthly portfolio review
-→ quarterly earnings review
-→ annual strategy audit
+Title:
+Author/organisation:
+URL or citation:
+Date accessed:
+Summary:
+How it affects Q-GEAR:
+Implementation consequence:
+Limitations:
 ```
 
-Daily output should usually be calm and action-sparse. Quarterly earnings reviews should be the main evidence-update workflow.
+Do not invent sources. If web access is unavailable, create or update `docs/research/TODO_sources.md`.
 
-## 23. Coding style
+---
 
-- Prefer simple, readable code over clever abstractions.
-- Use explicit types where practical.
-- Keep pure domain logic in `qgear-core`.
-- Keep AI prompts versioned in `prompts/`.
-- Keep configuration in environment variables and `.env.example`.
-- Never commit secrets or API keys.
-- Make the app runnable locally with documented commands.
-- Include clear seed/demo data for development.
-- Avoid absolute local paths in docs.
-- Do not introduce large dependencies without a clear reason.
+## 16. Codex project-manager loop
 
-## 24. Security, privacy, and compliance boundaries
+For any broad task, Codex must operate as project manager:
 
-- Local-first by default.
-- Do not send portfolio data to external services unless explicitly configured.
-- Store user data locally.
-- Keep API keys in environment variables.
-- No broker integration unless explicitly requested in a future milestone.
-- No trading execution layer.
-- No background upload of user portfolio, watchlist, or notes.
-- Include personal-use educational disclaimers.
+```text
+1. Read AGENTS.md and docs/QGEAR_VISION_AND_PRODUCT_SPEC.md.
+2. Read README.md, docs/project_status.md, docs/roadmap.md, docs/iteration_log.md, and relevant code/tests.
+3. Run git status.
+4. Audit before editing.
+5. Spawn bounded subagents when useful.
+6. Consolidate findings.
+7. Implement one coherent milestone or fix batch.
+8. Run tests and smoke checks.
+9. Fix failures and rerun.
+10. Update docs/status/logs.
+11. Stop at checkpoint if user requested review, or continue only if a goal prompt explicitly says to continue.
+```
 
-## 25. Git discipline
+Use subagents for read-heavy or review-heavy tasks, such as:
+
+- Product/UX Agent.
+- AI Integration Agent.
+- Core Decision Engine Agent.
+- Backend/API Agent.
+- Frontend/UI Agent.
+- Data Ingestion Agent.
+- QA/Test Agent.
+- Security/Privacy Agent.
+- Documentation/PM Agent.
+
+Subagent reports must include:
+
+```text
+Role:
+Files reviewed:
+Findings:
+Severity:
+Recommended changes:
+Affected files:
+Tests to run:
+Blockers:
+```
+
+---
+
+## 17. Git discipline
 
 - Run `git status` before and after significant work.
 - Do not commit `.env`, local DB files, cache files, `node_modules`, `.next`, `.venv`, or secrets.
-- Prefer small coherent commits by milestone if the user explicitly asks Codex to commit.
-- Never rewrite git history unless explicitly instructed.
-- End each run with a clear “commit-ready” summary and suggested commit message.
+- Prefer branch-per-milestone work.
+- Prefer small coherent commits.
+- Do not rewrite history unless explicitly instructed.
+- End each substantial run with a commit-ready summary and suggested commit message.
+- Do not create tags unless explicitly asked.
 
-## 26. Final reporting format for Codex
+---
 
-Every substantial Codex run should end with:
+## 18. Final reporting format
+
+Every substantial Codex run must end with:
 
 ```text
 Summary:
@@ -533,310 +529,4 @@ Next recommended milestone:
 Suggested commit message:
 ```
 
-Be honest. Do not claim that research, tests, builds, or smoke checks were completed if they were not.
-
-## Continuous Project Manager Operating Mode
-
-When the user asks for project-wide progress, continuous improvement, or "continue until complete", Codex must operate as the **Q-GEAR Project Manager**.
-
-The Project Manager must not treat a single milestone as the final goal unless the user explicitly says to stop after that milestone. The final goal is a complete local personal-use Q-GEAR AI Growth OS that implements the strategy, portfolio workflow, evidence engine, reporting, and data-provider roadmap while preserving all non-negotiable investment guardrails.
-
-### Core rule
-
-Work milestone by milestone. After each milestone, run quality checks, fix failures, update docs, update version/status, then continue to the next milestone unless:
-
-1. the user requested a stop,
-2. a required approval is blocked,
-3. tests cannot proceed due to an external dependency or network issue,
-4. a design decision requires user input,
-5. continuing would risk breaking the non-negotiable product or investment rules.
-
-Never claim the complete project is done unless all roadmap milestones have passed their exit criteria.
-
----
-
-## Roadmap Milestones
-
-Maintain and update `docs/roadmap.md`, `docs/project_status.md`, and `docs/iteration_log.md`.
-
-Default milestone order:
-
-### v0.1.1 — Hardening and verification
-
-Goal: make the demo MVP reliable, documented, testable, and safe.
-
-Required exit criteria:
-
-- Python tests pass.
-- Python compile checks pass.
-- Frontend lint/typecheck/build pass, or blocker is documented honestly.
-- API smoke tests pass.
-- Demo universe validates.
-- `.gitignore` protects `.env`, virtualenvs, node_modules, local DBs, caches, and build artifacts.
-- README, API examples, project status, and iteration log are updated.
-- No auto-trading, margin, options, or generic buy-the-dip behavior exists.
-
-### v0.2 — Data foundation
-
-Goal: add safe, modular live-data foundations without corrupting the decision brain.
-
-Scope:
-
-- Provider metadata model.
-- Safe demo/live routing.
-- SEC company facts and filings metadata provider with custom User-Agent, cache, backoff, and <=10 requests/sec.
-- Price provider interface and at least one safe implementation or documented placeholder.
-- Benchmark snapshot model for SPY, QQQ, XLK, and SMH.
-- Source/evidence provenance records.
-- File-backed API tests for provider responses.
-
-Exit criteria:
-
-- Demo mode still works without API keys.
-- Provider failures degrade gracefully.
-- No secrets are hardcoded.
-- Ingestion tests pass with fixtures/mocks.
-- Source metadata is visible through API models.
-
-### v0.3 — Earnings and evidence engine
-
-Goal: make earnings review the heart of the system.
-
-Scope:
-
-- Earnings event model.
-- Pre-earnings checklist.
-- Post-earnings analysis schema.
-- Guidance/beat/miss/manual evidence input.
-- Thesis strengthened/unchanged/weakened/broken logic.
-- Structured evidence object persistence.
-- Evidence freshness rules.
-- Prompt templates for earnings summariser, thesis updater, risk extractor, and scoring explainer.
-
-Exit criteria:
-
-- A user can review a stock before and after earnings.
-- Fresh positive evidence is required for add actions.
-- Weakening evidence blocks buy/add.
-- Evidence objects include claim, source, source date, confidence, and disproves_if.
-- Tests cover earnings-strengthened and earnings-weakened paths.
-
-### v0.4 — Valuation and backtesting
-
-Goal: add disciplined valuation underwriting and strategy testing.
-
-Scope:
-
-- Bear/base/bull valuation cases.
-- 3-year and 5-year expected IRR.
-- Probability-weighted IRR.
-- Valuation hurdle gates.
-- Benchmark comparison.
-- Backtest skeleton with no-lookahead rules and fixture data.
-- Strategy audit report.
-
-Exit criteria:
-
-- Buy/add requires valuation hurdle clearance.
-- Great company but poor expected IRR becomes Watch/Hold, not Buy.
-- Backtest code is separated from live decision state.
-- Backtest docs explain limitations.
-- Tests cover valuation edge cases.
-
-### v0.5 — Portfolio reports, alerts, and review cycles
-
-Goal: make the app useful as a recurring personal research OS.
-
-Scope:
-
-- Daily brief.
-- Weekly ranking report.
-- Monthly portfolio review.
-- Quarterly earnings review.
-- Annual strategy audit.
-- Alert rules for filings, earnings, technical breaks, stale evidence, concentration, drawdown, and thesis review dates.
-- Decision journal analytics and mistake review.
-
-Exit criteria:
-
-- Reports are generated from local state.
-- Most daily reports can say "No action justified today."
-- Alerts never become auto-trade instructions.
-- Journal entries link to evidence and decision state.
-
-### v1.0 — Complete local personal research OS
-
-Goal: complete the planned system without turning it into an advisory product or trading bot.
-
-Exit criteria:
-
-- Local setup is documented and repeatable.
-- Demo mode works fully.
-- Live-data mode is optional, configurable, and safe.
-- Strategy brain is implemented in core domain logic, not only UI copy.
-- Evidence, thesis, valuation, technical, and risk gates all affect decisions.
-- Portfolio review and journal workflows are usable end to end.
-- Tests, docs, and project status are current.
-- Known limitations are clearly listed.
-
----
-
-## Required Iteration Loop
-
-For every milestone, Codex must execute this loop:
-
-1. **Audit**
-   - Read `AGENTS.md`, `README.md`, `docs/roadmap.md`, `docs/project_status.md`, and `docs/iteration_log.md`.
-   - Run `git status`.
-   - Inspect relevant code and tests.
-   - Identify blockers and risks.
-
-2. **Subagent review**
-   Spawn bounded subagents when useful. Prefer subagents for read-heavy or review-heavy work.
-
-   Suggested subagents:
-   - Strategy Research Agent
-   - Core Decision Engine Agent
-   - Backend/API Agent
-   - Frontend/UI Agent
-   - Data Ingestion Agent
-   - QA/Test Agent
-   - Security/Privacy/Compliance Agent
-   - Documentation/PM Agent
-
-   Each subagent report must include:
-   - role,
-   - files reviewed,
-   - findings,
-   - severity,
-   - proposed changes,
-   - tests to run,
-   - blockers.
-
-3. **Plan**
-   - Create a concise implementation plan for the current milestone.
-   - Do not start the next milestone until current exit criteria pass or a blocker is documented.
-
-4. **Implement**
-   - Make focused changes.
-   - Keep qgear-core pure and testable.
-   - Keep live data behind providers.
-   - Keep demo mode working.
-   - Do not add broker execution, auto-trading, margin, or options.
-
-5. **Test and QC**
-   Run relevant checks. Default checks include:
-
-   ```bash
-   python3 scripts/run_tests.py
-   python3 -m compileall packages apps/api scripts tests
-   python3 scripts/seed_local_data.py
-   ```
-
-   If frontend dependencies are installed:
-
-   ```bash
-   cd apps/web
-   npm run lint
-   npm run typecheck
-   npm run build
-   npm audit --omit=dev
-   ```
-
-   API smoke checks should cover:
-
-   ```text
-   /health
-   /universe
-   /portfolio
-   /earnings
-   /reports/weekly
-   ```
-
-6. **Fix loop**
-   - If tests fail, fix and rerun.
-   - Do not proceed with known failing tests unless the failure is external and documented.
-
-7. **Documentation and status update**
-   Update:
-   - `docs/project_status.md`
-   - `docs/iteration_log.md`
-   - `docs/roadmap.md`
-   - relevant API/setup docs
-   - known limitations
-
-8. **Version checkpoint**
-   - Update version/status labels where the project already tracks them.
-   - Recommend a Git commit message.
-   - Do not create tags unless asked.
-
-9. **Continue or stop decision**
-   - If the milestone passed and the user asked for continuous progress, proceed to the next milestone.
-   - If approval, network, environment, or design input is required, stop and report exactly what is needed.
-
----
-
-## Research Rules for Strategy Work
-
-When implementing or changing strategy logic, Codex must not invent research claims. Use `docs/research/source_library.md` as the starting bibliography and add source notes under `docs/research/`.
-
-For each research-backed strategy decision, record:
-
-```text
-Title:
-Author/organisation:
-URL or citation:
-Date accessed:
-Summary:
-How it affects Q-GEAR:
-Implementation consequence:
-Limitations:
-```
-
-Preferred evidence types:
-
-1. Academic papers and working papers.
-2. Primary data-provider documentation.
-3. Reputable institutional research.
-4. Company filings and earnings materials.
-5. Official regulatory/tax/data-source documentation.
-
-Do not use social media or blogs as primary evidence for strategy rules.
-
----
-
-## Completion Standard
-
-The project is not complete when the code merely compiles. The project is complete only when the end-to-end local user flow works:
-
-```text
-onboarding/settings
-→ AI universe
-→ stock deep dive
-→ thesis approval
-→ valuation and expected IRR
-→ earnings evidence update
-→ technical/risk confirmation
-→ portfolio sizing
-→ journal entry
-→ daily/weekly/monthly/quarterly/annual reports
-→ benchmark/risk review
-```
-
-The system must preserve these outputs:
-
-- clear decision state,
-- reasons,
-- blockers,
-- evidence,
-- source metadata,
-- confidence,
-- what would disprove the thesis,
-- position-size/risk impact,
-- journal/audit trail.
-
-If the system cannot justify an action, it must say:
-
-```text
-No action justified today.
-```
+Be honest. Do not claim research, tests, builds, UI checks, or live-provider verification if they were not performed.

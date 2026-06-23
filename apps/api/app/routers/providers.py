@@ -4,6 +4,8 @@ from fastapi import APIRouter, HTTPException, Query
 
 from app.core.config import settings
 from app.serializers import to_jsonable
+from qgear_ai.providers import build_ai_provider
+from qgear_ai.service import AIResearchService
 from qgear_ingest.providers.base import DataMode, ProviderResponse
 from qgear_ingest.providers.factory import ProviderConfig, build_provider_bundle
 
@@ -49,7 +51,11 @@ def _response(response: ProviderResponse) -> dict:
 
 @router.get("/status")
 def provider_status() -> dict:
-    return _bundle().status_payload()
+    payload = _bundle().status_payload()
+    payload["ai"] = AIResearchService(
+        build_ai_provider(settings.ai_provider, api_key=settings.openai_api_key, model=settings.ai_model)
+    ).status()
+    return payload
 
 
 @router.get("/company-facts/{cik}")

@@ -1,126 +1,145 @@
 import Link from "next/link";
+import type { Route } from "next";
 import { StateBadge } from "@/components/StateBadge";
-import { getPortfolio, getProviderStatus, getUniverse } from "@/lib/api";
+import { EmptyState, MetricCard, PageHeader, ProviderStatusBadge, SectionCard } from "@/components/ui";
+import { getToday } from "@/lib/api";
 
-export default async function DashboardPage() {
-  const [universe, portfolio, providers] = await Promise.all([getUniverse(), getPortfolio(), getProviderStatus()]);
-  const ranked = [...universe.companies].sort((a, b) => b.score.total - a.score.total).slice(0, 8);
-  const actionAllowed = universe.companies.filter((company) => ["STARTER_ALLOWED", "ADD_ALLOWED"].includes(company.status));
+export default async function TodayPage() {
+  const today = await getToday();
 
   return (
     <div className="page">
+      <PageHeader
+        eyebrow="Today"
+        title="No Action Unless Evidence Changed"
+        description="A calm daily command center for review queues, evidence changes, provider status, and portfolio risk."
+        actions={
+          <>
+            <ProviderStatusBadge mode={today.provider_status.mode} />
+            <Link className="button secondary" href="/settings">
+              Settings
+            </Link>
+          </>
+        }
+      />
+
       <section className="section">
-        <div className="section-header">
-          <div>
-            <h1>Research Dashboard</h1>
-            <p className="muted">Evidence-first AI infrastructure watchlist, decision gates, risk budget, and journal workflows.</p>
-          </div>
-          <Link className="button secondary" href="/settings">
-            Onboarding settings
-          </Link>
-        </div>
         <div className="grid cols-4">
-          <div className="panel panel-body metric">
-            <span>Universe</span>
-            <strong>{universe.count}</strong>
-            <span>Demo tickers classified</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Total equity</span>
-            <strong>${portfolio.total_equity.toLocaleString()}</strong>
-            <span>Manual local portfolio</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Drawdown mode</span>
-            <strong>{portfolio.drawdown_mode.replaceAll("_", " ")}</strong>
-            <span>{portfolio.drawdown_pct.toFixed(1)}% current drawdown</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Action-changing evidence</span>
-            <strong>{actionAllowed.length}</strong>
-            <span>No action unless evidence changed</span>
-          </div>
+          <MetricCard label="Universe" value={today.metrics.universe_count} detail="Demo tickers classified" />
+          <MetricCard label="Review queue" value={today.metrics.review_queue_count} detail="Start here today" tone="warn" />
+          <MetricCard
+            label="Drawdown mode"
+            value={today.metrics.drawdown_mode.replaceAll("_", " ")}
+            detail={`${today.metrics.drawdown_pct.toFixed(1)}% current drawdown`}
+            tone={today.metrics.drawdown_mode === "NORMAL" ? "ok" : "warn"}
+          />
+          <MetricCard
+            label="Gated action states"
+            value={today.metrics.action_allowed_count}
+            detail="Manual review only"
+            tone={today.metrics.action_allowed_count ? "warn" : "neutral"}
+          />
         </div>
       </section>
 
-      <section className="section">
+      <SectionCard title="Daily Stance" description="Default to discipline unless the evidence changed.">
         <div className="callout">
-          <strong>Daily stance:</strong> No action justified today unless thesis, earnings, valuation, technical regime, evidence freshness, and risk budget all clear.
+          <strong>{today.default_stance}</strong> {today.stance_reason}
         </div>
-      </section>
+      </SectionCard>
 
-      <section className="section">
-        <div className="section-header">
-          <div>
-            <h2>Data Provenance</h2>
-            <p className="muted">Provider mode and safety status for local research data.</p>
-          </div>
-          <Link href="/reports" className="button secondary">
-            Review reports
-          </Link>
-        </div>
-        <div className="grid cols-4">
-          <div className="panel panel-body metric">
-            <span>Mode</span>
-            <strong>{providers.mode.replaceAll("_", " ")}</strong>
-            <span>Live data optional</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>SEC filings</span>
-            <strong>{providers.providers.filings ?? "not configured"}</strong>
-            <span>Source metadata required</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Prices</span>
-            <strong>{providers.providers.prices ?? "not configured"}</strong>
-            <span>Mock snapshots in demo mode</span>
-          </div>
-          <div className="panel panel-body metric">
-            <span>Safety</span>
-            <strong>{providers.safety.auto_trading}</strong>
-            <span>Auto-trading, margin, and options disabled</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="section-header">
-          <h2>Top Demo Rankings</h2>
-          <Link href="/universe" className="button secondary">
-            Open screener
-          </Link>
-        </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Ticker</th>
-                <th>Layer</th>
-                <th>Score</th>
-                <th>State</th>
-                <th>Evidence summary</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranked.map((company) => (
-                <tr key={company.ticker}>
-                  <td>
-                    <Link href={`/universe/${company.ticker}`}>
-                      <strong>{company.ticker}</strong>
-                    </Link>
-                  </td>
-                  <td>{company.ai_layer.replaceAll("_", " ")}</td>
-                  <td>{company.score.total.toFixed(1)}</td>
-                  <td>
-                    <StateBadge state={company.status} />
-                  </td>
-                  <td>{company.evidence_summary}</td>
-                </tr>
+      <section className="split">
+        <SectionCard
+          title="Review Queue"
+          description="Evidence, thesis, valuation, technical, and portfolio-risk items to inspect before any decision changes."
+          actions={
+            <Link href={"/pipeline" as Route} className="button secondary">
+              Pipeline
+            </Link>
+          }
+        >
+          {today.review_queue.length ? (
+            <div className="review-list">
+              {today.review_queue.map((item) => (
+                <Link key={item.ticker} href={`/universe/${item.ticker}`} className="review-item">
+                  <span>
+                    <strong>{item.ticker}</strong>
+                    <small>{item.company_name}</small>
+                  </span>
+                  <StateBadge state={item.decision_state} />
+                  <p>{item.primary_blocker || item.next_task}</p>
+                </Link>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          ) : (
+            <EmptyState title="Queue clear" detail="No urgent review prompts in the current demo data." />
+          )}
+        </SectionCard>
+
+        <SectionCard title="Pipeline Snapshot" description="Where the universe sits today.">
+          <div className="metric-stack">
+            {today.pipeline_snapshot.map((state) => (
+              <Link href={"/pipeline" as Route} className="snapshot-row" key={state.state}>
+                <span>
+                  <strong>{state.label}</strong>
+                  <small>{state.description}</small>
+                </span>
+                <span className="badge">{state.count}</span>
+              </Link>
+            ))}
+          </div>
+        </SectionCard>
       </section>
+
+      <SectionCard title="Review Prompts" description="Alerts are review prompts only. They are never trade instructions.">
+        {today.alerts.length ? (
+          <div className="alert-grid">
+            {today.alerts.map((alert) => (
+              <article className={`alert-card ${alert.severity}`} key={`${alert.type}-${alert.ticker ?? "portfolio"}`}>
+                <span className="eyebrow">{alert.type.replaceAll("_", " ")}</span>
+                <h3>{alert.ticker ?? "Portfolio"}</h3>
+                <p>{alert.message}</p>
+                <small>Review prompt only: {String(alert.trade_instruction)}</small>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <EmptyState title="No alerts" detail="No local review prompts are present in the current demo data." />
+        )}
+      </SectionCard>
+
+      <SectionCard title="Data Provenance" description="Provider mode and safety status for local research data.">
+        <div className="grid cols-4">
+          <MetricCard label="Mode" value={today.provider_status.mode.replaceAll("_", " ")} detail="Live data optional" />
+          <MetricCard label="SEC filings" value={today.provider_status.providers.filings ?? "not configured"} detail="Source metadata required" />
+          <MetricCard label="Prices" value={today.provider_status.providers.prices ?? "not configured"} detail="Mock snapshots in demo mode" />
+          <MetricCard label="Safety" value={today.safety.auto_trading} detail="Auto-trading, margin, and options disabled" tone="ok" />
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Research Priority Only"
+        description="Rankings help decide what to study. A high score does not override hard gates."
+        actions={
+          <Link href="/universe" className="button secondary">
+            Universe screener
+          </Link>
+        }
+      >
+        <div className="ranking-grid">
+          {today.top_rankings.map((item) => (
+            <Link href={`/universe/${item.ticker}`} key={item.ticker} className="ranking-card">
+              <span>
+                <strong>{item.ticker}</strong>
+                <small>{item.company_name}</small>
+              </span>
+              <StateBadge state={item.decision_state} />
+              <p>{item.primary_blocker || item.primary_reason}</p>
+              <strong>{item.score.toFixed(1)}</strong>
+            </Link>
+          ))}
+        </div>
+      </SectionCard>
     </div>
   );
 }

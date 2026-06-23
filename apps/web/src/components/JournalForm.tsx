@@ -21,14 +21,24 @@ export function JournalForm() {
       invalidation_rule: String(form.get("invalidation_rule")),
       expected_irr_pct: Number(form.get("expected_irr_pct")),
       future_review_date: String(form.get("future_review_date")),
-      later_outcome: String(form.get("later_outcome") ?? "")
+      later_outcome: String(form.get("later_outcome") ?? ""),
+      decision_outcome: String(form.get("decision_outcome") ?? ""),
+      mistake_category: String(form.get("mistake_category") ?? "NONE"),
+      evidence_quality: String(form.get("evidence_quality") ?? "MEDIUM"),
+      followed_system: form.get("followed_system") === "on",
+      later_review: String(form.get("later_review") ?? ""),
+      process_score: Number(form.get("process_score") ?? 0)
     };
-    const response = await fetch(`${API_URL}/journal`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    setMessage(response.ok ? "Decision logged locally." : "Could not save journal entry. Check that the API is running.");
+    try {
+      const response = await fetch(`${API_URL}/journal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      setMessage(response.ok ? "Decision logged locally." : "Could not save journal entry. Check that the API is running.");
+    } catch {
+      setMessage("API unavailable. The journal form stayed local in your browser and was not saved.");
+    }
   }
 
   return (
@@ -43,7 +53,7 @@ export function JournalForm() {
           <input id="ticker" name="ticker" required />
         </div>
         <div className="field">
-          <label htmlFor="action">Action</label>
+          <label htmlFor="action">Decision state</label>
           <select id="action" name="action">
             <option>NO_ACTION</option>
             <option>STARTER_ALLOWED</option>
@@ -73,8 +83,37 @@ export function JournalForm() {
           <label htmlFor="future_review_date">Future review date</label>
           <input id="future_review_date" name="future_review_date" type="date" required />
         </div>
+        <div className="field">
+          <label htmlFor="evidence_quality">Evidence quality</label>
+          <select id="evidence_quality" name="evidence_quality" defaultValue="MEDIUM">
+            <option>LOW</option>
+            <option>MEDIUM</option>
+            <option>HIGH</option>
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="process_score">Process score</label>
+          <input id="process_score" name="process_score" type="number" min="0" max="100" step="1" defaultValue="80" />
+        </div>
+        <div className="field">
+          <label htmlFor="mistake_category">Mistake category</label>
+          <select id="mistake_category" name="mistake_category" defaultValue="NONE">
+            <option>NONE</option>
+            <option>THESIS_DRIFT</option>
+            <option>EVIDENCE_GAP</option>
+            <option>VALUATION_ERROR</option>
+            <option>RISK_BUDGET_BREAK</option>
+            <option>POSITION_SIZING_ERROR</option>
+            <option>PROCESS_SKIP</option>
+            <option>OTHER</option>
+          </select>
+        </div>
+        <label className="check-label">
+          <input id="followed_system" name="followed_system" type="checkbox" defaultChecked />
+          Followed Q-GEAR gates
+        </label>
         <div className="field wide">
-          <label htmlFor="evidence">Evidence</label>
+          <label htmlFor="evidence">Evidence and source</label>
           <textarea id="evidence" name="evidence" required />
         </div>
         <div className="field wide">
@@ -88,6 +127,14 @@ export function JournalForm() {
         <div className="field wide">
           <label htmlFor="later_outcome">Later outcome</label>
           <textarea id="later_outcome" name="later_outcome" />
+        </div>
+        <div className="field wide">
+          <label htmlFor="decision_outcome">Decision outcome</label>
+          <textarea id="decision_outcome" name="decision_outcome" placeholder="Pending, worked, thesis weakened, avoided loss, process mistake..." />
+        </div>
+        <div className="field wide">
+          <label htmlFor="later_review">Later review</label>
+          <textarea id="later_review" name="later_review" placeholder="What should be checked after the future review date?" />
         </div>
       </div>
       <div className="button-row">

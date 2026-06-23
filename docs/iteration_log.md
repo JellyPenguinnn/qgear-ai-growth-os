@@ -95,3 +95,161 @@
   - Verified built web routes for dashboard, universe, NVDA stock detail, earnings, portfolio, journal, reports, and settings with HTTP 200 plus expected rendered content.
   - Updated README, final system report, project status, and roadmap to reflect v1.0 local/demo status and remaining limitations.
   - Final verification passed: `python3 scripts/run_tests.py` passed with 48 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed; API and built-web route smoke passed. DuckDB remained an optional unavailable dependency in the global Python context. In-app browser visual smoke remained blocked by runtime initialization.
+
+## 2026-06-23
+
+- Started v2.0 upgrade track from the pushed v1.0 local/demo scaffold.
+- Confirmed current git state before edits:
+  - `main` tracks `origin/main`.
+  - Last commit: `26d55a4 Complete Q-GEAR v1.0 local research OS`.
+  - `AGENTS.md` was already modified and is treated as user-owned permanent-contract work; it was not edited.
+  - `docs/QGEAR_VISION_AND_PRODUCT_SPEC.md` existed as an untracked product-spec file and was used as v2 roadmap context.
+- Loaded required context from `AGENTS.md`, `docs/QGEAR_VISION_AND_PRODUCT_SPEC.md`, README, project status, roadmap, iteration log, API examples, research source library, core, ingest, AI, API, web, and tests.
+- Spawned read-only specialist audits:
+  - Product/UX Agent.
+  - AI Integration Agent.
+  - Core Decision Engine Agent.
+  - Backend/API Agent.
+  - Frontend/UI Agent.
+  - Data Provider Agent.
+  - QA/Test Agent.
+  - Security/Privacy Agent.
+  - Documentation/PM Agent.
+- Consolidated audit findings:
+  - v1.0.1 should reconcile CI/docs and verify local CI-equivalent checks.
+  - v1.1 should document UX audit, v2 IA, and first-5-minutes journey before UI rewrite.
+  - v1.2/v1.3 should move the app toward Today, Pipeline, and Workbench workflows.
+  - v1.4+ AI work must be disabled by default, explicit, draft-only, schema-validated, and unable to mutate decision state without user verification.
+  - Future core hardening should add AI evidence provenance/verification and reject price-only evidence semantically before AI evidence can affect decisions.
+- Began v1.0.1 repo quality and CI:
+  - Added README CI badge and CI documentation reference.
+  - Added `docs/ci.md`.
+  - Replaced stale v1.0-only roadmap with v1.0.1 -> v2.0 roadmap.
+  - Updated project status with audit summary, accepted plan, deferred items, and v1.0.1 exit criteria.
+  - Updated research source migration queue status labels.
+- Completed v1.0.1 local verification:
+  - `python3 scripts/run_tests.py` passed with 48 tests.
+  - `python3 -m compileall packages apps/api scripts tests` passed.
+  - `python3 scripts/seed_local_data.py` passed; DuckDB remained optional and unavailable in the global Python context.
+  - `npm run lint`, `npm run typecheck`, and `npm run build` passed in `apps/web`.
+  - `npm audit --omit=dev` initially failed due sandboxed DNS access, then passed with approved registry access and found 0 vulnerabilities.
+  - Tracked-file hygiene checks found no ignored tracked files, no OpenAI-style secrets, and no tracked `.env`, local DB, DuckDB, cache, virtualenv, `node_modules`, `.next`, `__pycache__`, pytest cache, or private-key files.
+  - GitHub-hosted Actions run was not observed in this session.
+- Completed v1.1 UX audit and information architecture:
+  - Added `docs/ux_audit.md` with screen-by-screen findings for dashboard, universe, stock workbench, earnings, portfolio, journal, reports, and settings.
+  - Added `docs/information_architecture.md` with v2 navigation and route map for Today, Pipeline, Universe, Workbench, Earnings, Portfolio, Journal, Reports, and Settings.
+  - Added `docs/user_journey_v2.md` with first-five-minutes, daily, weekly, earnings, monthly, quarterly, and annual journeys.
+  - Re-ran verification: `python3 scripts/run_tests.py` passed with 48 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+- Completed v1.2 visual redesign foundation:
+  - Added shared frontend components: `AppShell`, `TopNav`, `PageHeader`, `MetricCard`, `DecisionCard`, `EvidenceCard`, `BlockerList`, `ProviderStatusBadge`, `EmptyState`, and `SectionCard`.
+  - Replaced the old app shell with active v2-style navigation.
+  - Reworked design tokens and global styles for a calmer professional research UI.
+  - Refreshed Today/dashboard, Universe, Stock Workbench, Earnings, Portfolio, Journal, Reports, and Settings surfaces around shared components.
+  - Hardened frontend fallback stock detail so fallback mode cannot imply starter/add permission without API/core thesis and invalidation context.
+  - Made client forms fail softly when the API is unavailable.
+  - Re-ran verification: Python tests passed with 48 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed with 0 vulnerabilities.
+  - Built Next route smoke returned HTTP 200 for `/`, `/universe`, `/universe/NVDA`, `/earnings`, `/portfolio`, `/journal`, `/reports`, and `/settings`.
+  - Browser visual smoke remained blocked by the known in-app browser runtime `sandboxCwd` initialization issue.
+- Completed v1.3 Today page and Research Pipeline:
+  - Spawned bounded read-only Backend/API and Frontend/UI agents for the milestone.
+  - Added `/pipeline` API route with Q-GEAR state grouping, reasons, blockers, review flags, next task, full evidence object, source metadata, and `trade_instruction: false`.
+  - Added `/today` API route with daily stance, review queue, pipeline snapshot, alerts, provider status, portfolio/risk metrics, and safety flags.
+  - Added API smoke tests proving `/today` and `/pipeline` are review-only and expose decision/source metadata.
+  - Added frontend types and conservative fallback builders for Today/Pipeline. Fallback mode demotes actionable-looking states and blocks action permission.
+  - Added `ResearchPipeline` component and `/pipeline` page.
+  - Updated the global nav to include Pipeline between Today and Universe.
+  - Rebuilt `/` as the API-backed Today page with review queue and alerts above secondary rankings.
+  - Updated API examples and README route coverage.
+  - Re-ran verification: Python tests passed with 50 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+  - API smoke returned HTTP 200 for `/health`, `/today`, `/pipeline`, `/universe`, `/portfolio`, `/earnings`, `/reports/weekly`, `/alerts`, and `/valuation/NVDA`.
+  - Built Next route smoke returned HTTP 200 for `/`, `/pipeline`, `/universe`, `/universe/NVDA`, `/earnings`, `/portfolio`, `/journal`, `/reports`, and `/settings`.
+  - HTML phrase checks confirmed Today, Pipeline, and Stock Workbench rendered expected decision/evidence text.
+  - Browser visual smoke remained blocked by the known in-app browser runtime `sandboxCwd` initialization issue.
+- Completed v1.4 AI Provider Foundation:
+  - Spawned bounded read-only AI Integration and Security/QA agents.
+  - Added `QGEAR_AI_PROVIDER=none` and `QGEAR_AI_MODEL` configuration; `OPENAI_API_KEY` alone does not enable AI.
+  - Expanded `packages/qgear-ai` with provider modes, task models, response metadata, schemas, prompt builder, provider interface, `NoopAIProvider`, optional `OpenAIProvider`, validator, and `AIResearchService`.
+  - Added strict AI draft validation for malformed JSON/object shape, missing required fields, bad source dates, unknown confidence, action-state fields, price-only claims, and LOW-confidence action evidence.
+  - Added prompt contracts for evidence extraction, earnings summarization, and decision explanation.
+  - Added `/ai/status`, `/ai/evidence/extract`, `/ai/earnings/summarize`, `/ai/thesis/update`, and `/ai/decision/explain` draft-only routes.
+  - Added route-level OpenAI acknowledgement requirement: `external_ai_acknowledged: true` is required before any supplied text is sent to OpenAI mode.
+  - Added AI provider status into `/health` and `/providers/status`.
+  - Added Settings UI panel for AI disabled/draft-only/no external upload/no decision mutation status.
+  - Added AI service and API tests proving disabled mode, external acknowledgement, malformed output rejection, price-only rejection, LOW-confidence rejection, and no decision mutation.
+  - Re-ran verification: Python tests passed with 57 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+  - Fresh API smoke on port 8001 passed for `/health`, `/ai/status`, disabled `/ai/evidence/extract` POST, `/today`, `/pipeline`, `/universe`, `/portfolio`, `/earnings`, `/reports/weekly`, and `/valuation/NVDA`.
+  - Built Settings route smoke returned HTTP 200 and rendered AI Research Assistance, disabled-by-default, no decision mutation, and no automatic external upload text.
+  - Initial fresh API smoke without local package paths failed because the global Python context did not have editable `qgear-ai`; rerun with explicit local `PYTHONPATH` passed.
+- Completed v1.5 AI Evidence Workbench:
+  - Added `/evidence` page and Evidence navigation entry.
+  - Added `EvidenceWorkbenchForm` with source title/type/date/URL-or-description/pasted text intake, optional explicit AI extraction, and separate verified evidence fields.
+  - Kept AI extraction disabled when AI provider mode is `none`; manual verified evidence remains usable.
+  - Added explicit external AI acknowledgement checkbox for future OpenAI mode.
+  - Added LOW-confidence copy explaining it cannot support action-changing decisions.
+  - Wired stock detail API to include saved evidence objects in the Evidence Timeline before seed evidence.
+  - Added a Stock Workbench “Add evidence” link.
+  - Added API regression coverage proving saved evidence appears in `/universe/{ticker}` evidence table.
+  - Re-ran verification: Python tests passed with 57 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+  - Fresh API smoke on port 8001 saved verified NVDA evidence and confirmed `/universe/NVDA` included it in `evidence_table`.
+  - Removed the smoke-test evidence row from the local SQLite DB after verification.
+  - Built `/evidence` route smoke returned HTTP 200 and rendered Evidence Workbench, Verify Before Saving, Save verified evidence, AI disabled, and LOW-confidence action-blocking copy.
+  - Browser visual smoke remained blocked by the known in-app browser runtime `sandboxCwd` initialization issue.
+- Completed v1.6 AI Earnings Review:
+  - Redesigned `/earnings` into a guided review workflow with Before Earnings, After Earnings, AI Earnings Draft, Manual Post-Earnings Review, Decision Blockers, Journal Discipline, and demo earnings context.
+  - Added `AIEarningsSummaryForm` for explicit draft-only AI summarization when AI is enabled and the user acknowledges external AI use.
+  - Kept manual earnings review usable with AI disabled.
+  - Updated `EarningsReviewForm` to generate a draft journal note after a manual review save without auto-saving the journal.
+  - Added API regression coverage proving disabled `/ai/earnings/summarize` returns draft-disabled output and does not mutate decision state.
+  - Re-ran verification: Python tests passed with 57 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+  - Built `/earnings` route smoke returned HTTP 200 and rendered Earnings Review Lab, Before Earnings, AI Earnings Draft, Manual Post-Earnings Review, Decision Blockers, and Journal Discipline.
+  - Browser visual smoke remained blocked by the known in-app browser runtime `sandboxCwd` initialization issue.
+  - Started v1.7 Stock Workbench Redesign.
+- Completed v1.7 Stock Workbench Redesign:
+  - Spawned bounded read-only Frontend/UI and AI Integration/Security agents.
+  - Extended the first-screen Decision Card with evidence quality and next review.
+  - Added a Workbench summary strip for evidence quality, next review, action permission, and max new money.
+  - Expanded the stock detail page into a fuller workbench: next research task, reasons/blockers, evidence timeline, thesis card, earnings, valuation, technical/risk, portfolio impact, journal trail, and AI assistant panel.
+  - Added `StockAIAssistantPanel` with explicit draft-only controls for decision explanation, thesis update, evidence extraction, and local journal draft creation.
+  - Tightened external AI acknowledgement copy to list the fields sent for draft assistance.
+  - Hardened AI prompts so pasted filings/transcripts/notes are treated as untrusted source data and unsupported claims must be marked insufficient.
+  - Re-ran verification: frontend lint/typecheck/build passed; Python tests passed with 57 tests; compile and seed validation passed; `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+  - Fresh local API and built Next route smoke required escalation because sandboxed port binding was blocked; `/universe/NVDA` and `/ai/status` returned HTTP 200.
+  - Built `/universe/NVDA` HTML rendered Evidence quality, AI Assistant Panel, Thesis Card, Portfolio Impact, Journal Trail, Technical / Risk State, Create journal draft, and AI disabled-by-default copy.
+  - Browser visual smoke remained blocked by the known in-app browser runtime `sandboxCwd` initialization issue.
+  - Started v1.8 Valuation Underwriting Upgrade.
+- Completed v1.8 Valuation Underwriting Upgrade:
+  - Spawned bounded read-only valuation/core and backend/frontend valuation agents.
+  - Added core valuation assumptions, sensitivity cells, sensitivity table builder, stricter valuation-case validation, and exports.
+  - Added optional weighted expected IRR to the decision input so valuation-aware callers can gate on probability-weighted IRR instead of base IRR alone.
+  - Added regression tests proving weighted IRR below hurdle blocks even when base IRR clears, and valuation clearing without fresh evidence still cannot create starter/add.
+  - Expanded `/valuation/{ticker}` to return assumption-rich bear/base/bull cases, case IRRs, probability-weighted 3Y/5Y IRR, sensitivity table, notes, evidence refs, and `trade_instruction: false`.
+  - Added stateless `POST /valuation/{ticker}/calculate` for draft underwriting recalculation without persistence or decision-state mutation.
+  - Added frontend valuation types, `getValuation`, and an editable Stock Workbench valuation underwriting component with assumptions, probability total, sensitivity table, notes/evidence refs, and disabled-by-default AI valuation explainer button.
+  - Updated API examples and README.
+  - Re-ran verification: Python tests passed with 62 tests; compile and seed validation passed; frontend lint/typecheck/build passed; `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+  - Fresh local API and built Next route smoke required escalation because sandboxed port binding was blocked; `/valuation/NVDA`, `/valuation/PLTR`, `POST /valuation/NVDA/calculate`, and `/universe/NVDA` returned HTTP 200.
+  - Built `/universe/NVDA` HTML/API checks confirmed Valuation Underwriting, Probability-weighted IRR, Recalculate draft valuation, Sensitivity Table, AI valuation explainer disabled, `sensitivity_table`, `probability_weighted_irr_5y_pct`, and `valuation_clears_hurdle`.
+  - Browser visual smoke remained blocked by the known in-app browser runtime `sandboxCwd` initialization issue.
+  - Started v1.9 Portfolio And Journal Intelligence.
+- Implemented v1.9 Portfolio And Journal Intelligence:
+  - Spawned bounded read-only backend and frontend portfolio/journal agents.
+  - Added SQLite compatibility migration columns for journal decision outcome, mistake category, evidence quality, followed-system flag, later review, and process score.
+  - Expanded journal analytics with outcome counts, mistake counts, evidence quality counts, followed-system rate, average process score, and unresolved later review count.
+  - Expanded `/portfolio` with manual-only metadata, cash percentage, total-equity position weights, AI-layer concentration, expected IRR distribution, structured benchmark placeholders, concentration risks, blocked adds, and review calendar.
+  - Reused enriched portfolio and journal analytics in monthly reports.
+  - Updated portfolio UI with risk dashboard, AI-layer exposure, benchmark placeholders, blocked adds, review calendar, thesis status visibility, and draft-only AI review status.
+  - Updated journal UI and form with process fields and analytics cards.
+  - Updated reports UX to show richer monthly/quarterly review prompts, blocked adds, review calendar, weakened/broken names, and earnings review prompts.
+  - Updated API examples and README for portfolio/journal intelligence.
+  - Re-ran verification: Python tests passed with 63 tests; compile and seed validation passed; frontend lint/typecheck/build passed.
+  - `npm audit --omit=dev` failed in the sandbox due DNS, and the escalated rerun was rejected because the session hit its usage limit. Not verified for v1.9.
+  - Local API and built Next route smoke failed in the sandbox with port-bind `EPERM`/`operation not permitted`; escalation was unavailable after the usage-limit rejection. Not verified for v1.9.
+  - v2.0 release pass is blocked pending verification access.
+- Completed v2.0 polished release pass:
+  - Re-ran the full local verification suite: `python3 scripts/run_tests.py` passed with 63 tests; Python compile passed; seed validation passed with DuckDB optional/unavailable in the global Python context; frontend lint/typecheck/build passed.
+  - Re-ran `npm audit --omit=dev`; the sandboxed command failed on DNS, then the approved registry-access rerun passed with 0 vulnerabilities.
+  - Re-ran local API smoke with approved local-server binding. `/health`, `/today`, `/pipeline`, `/ai/status`, `/universe`, `/portfolio`, `/earnings`, `/reports/weekly`, `/alerts`, `/journal/analytics`, `/valuation/NVDA`, `POST /valuation/NVDA/calculate`, and `/valuation/backtest/demo` passed.
+  - Re-ran built Next route smoke with approved local-server binding. `/`, `/pipeline`, `/evidence`, `/universe`, `/universe/NVDA`, `/earnings`, `/portfolio`, `/journal`, `/reports`, and `/settings` returned HTTP 200.
+  - Attempted in-app Browser visual smoke; the Browser runtime failed before navigation with `sandboxCwd must be an absolute file URI`, so visual screenshot/DOM inspection remains unverified.
+  - Updated project status and roadmap from blocked to locally verified, with GitHub-hosted CI observation still pending after push.
+  - Preserved all Q-GEAR guardrails: no auto-trading, no broker execution, no margin, no options-by-default, no price-only buy/add behavior, and AI remains explicit, draft-only, disabled by default, and unable to mutate decisions automatically.

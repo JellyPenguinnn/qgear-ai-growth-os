@@ -65,6 +65,12 @@ def init_db() -> None:
                 expected_irr_pct REAL NOT NULL,
                 future_review_date TEXT NOT NULL,
                 later_outcome TEXT NOT NULL,
+                decision_outcome TEXT NOT NULL DEFAULT '',
+                mistake_category TEXT NOT NULL DEFAULT '',
+                evidence_quality TEXT NOT NULL DEFAULT 'MEDIUM',
+                followed_system INTEGER NOT NULL DEFAULT 1,
+                later_review TEXT NOT NULL DEFAULT '',
+                process_score REAL NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL
             );
 
@@ -108,6 +114,25 @@ def init_db() -> None:
             );
             """
         )
+        _ensure_columns(
+            connection,
+            "journal_entries",
+            {
+                "decision_outcome": "TEXT NOT NULL DEFAULT ''",
+                "mistake_category": "TEXT NOT NULL DEFAULT ''",
+                "evidence_quality": "TEXT NOT NULL DEFAULT 'MEDIUM'",
+                "followed_system": "INTEGER NOT NULL DEFAULT 1",
+                "later_review": "TEXT NOT NULL DEFAULT ''",
+                "process_score": "REAL NOT NULL DEFAULT 0",
+            },
+        )
+
+
+def _ensure_columns(connection: sqlite3.Connection, table: str, columns: dict[str, str]) -> None:
+    existing = {row["name"] for row in connection.execute(f"PRAGMA table_info({table})").fetchall()}
+    for name, definition in columns.items():
+        if name not in existing:
+            connection.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
 
 
 def now_iso() -> str:
@@ -243,7 +268,12 @@ def list_journal_entries() -> list[dict[str, Any]]:
     init_db()
     with _connect() as connection:
         rows = connection.execute("SELECT * FROM journal_entries ORDER BY entry_date DESC, id DESC").fetchall()
-    return [dict(row) for row in rows]
+    entries = []
+    for row in rows:
+        payload = dict(row)
+        payload["followed_system"] = bool(payload.get("followed_system", 1))
+        entries.append(payload)
+    return entries
 
 
 def add_journal_entry(payload: dict[str, Any]) -> dict[str, Any]:
@@ -254,8 +284,10 @@ def add_journal_entry(payload: dict[str, Any]) -> dict[str, Any]:
             """
             INSERT INTO journal_entries
               (entry_date, ticker, action, price, position_size_pct, score, evidence, thesis,
-               invalidation_rule, expected_irr_pct, future_review_date, later_outcome, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               invalidation_rule, expected_irr_pct, future_review_date, later_outcome,
+               decision_outcome, mistake_category, evidence_quality, followed_system, later_review,
+               process_score, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 payload["entry_date"],
@@ -270,6 +302,12 @@ def add_journal_entry(payload: dict[str, Any]) -> dict[str, Any]:
                 payload["expected_irr_pct"],
                 payload["future_review_date"],
                 payload.get("later_outcome", ""),
+                payload.get("decision_outcome", ""),
+                payload.get("mistake_category", ""),
+                payload.get("evidence_quality", "MEDIUM"),
+                1 if payload.get("followed_system", True) else 0,
+                payload.get("later_review", ""),
+                payload.get("process_score", 0),
                 timestamp,
             ),
         )

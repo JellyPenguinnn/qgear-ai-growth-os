@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.db.sqlite import list_journal_entries, list_positions
+from app.db.sqlite import list_journal_entries
 from app.routers.alerts import ALERT_RULES, build_alerts
 from app.routers.journal import build_journal_analytics
+from app.routers.portfolio import portfolio_summary
 from qgear_core.demo import DEMO_UNIVERSE
 
 router = APIRouter(prefix="/reports", tags=["reports"])
@@ -56,11 +57,15 @@ def weekly_ranking_report() -> dict:
 
 @router.get("/monthly")
 def monthly_portfolio_review() -> dict:
+    portfolio = portfolio_summary()
     return {
         "title": "Monthly Portfolio Review",
-        "positions": list_positions(),
+        "portfolio": portfolio,
+        "positions": portfolio["positions"],
         "journal_entries": list_journal_entries(),
         "journal_analytics": build_journal_analytics(),
+        "blocked_adds": portfolio["blocked_adds"],
+        "review_calendar": portfolio["review_calendar"],
         "alerts": build_alerts()["alerts"][:10],
         "review_prompts": [
             "Did decisions follow thesis and invalidation rules?",
