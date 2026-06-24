@@ -6,6 +6,7 @@ from pathlib import Path
 from qgear_ingest.providers.base import DataMode, ProviderName, ProviderResponse, ProviderStatus
 from qgear_ingest.providers.macro import EiaProvider, EiaProviderConfig, FredProvider, FredProviderConfig
 from qgear_ingest.providers.mock import MockProvider
+from qgear_ingest.providers.prices import AlphaVantagePriceProvider, AlphaVantagePriceProviderConfig
 from qgear_ingest.providers.sec_edgar import SecEdgarProvider
 
 
@@ -15,6 +16,8 @@ class ProviderConfig:
     cache_dir: Path = Path("data/cache")
     sec_user_agent: str = "qgear-ai-growth-os personal research app contact@example.com"
     sec_max_requests_per_second: int = 10
+    price_provider: str = "mock"
+    alpha_vantage_api_key: str | None = None
     fred_api_key: str | None = None
     eia_api_key: str | None = None
 
@@ -49,6 +52,7 @@ class ProviderBundle:
     company_facts_provider: object
     filings_provider: object
     price_provider: object
+    price_history_provider: object
     benchmark_provider: object
     fred_provider: object
     eia_provider: object
@@ -61,6 +65,7 @@ class ProviderBundle:
                 "company_facts": type(self.company_facts_provider).__name__,
                 "filings": type(self.filings_provider).__name__,
                 "prices": type(self.price_provider).__name__,
+                "price_history": type(self.price_history_provider).__name__,
                 "benchmarks": type(self.benchmark_provider).__name__,
                 "fred": type(self.fred_provider).__name__,
                 "eia": type(self.eia_provider).__name__,
@@ -87,12 +92,18 @@ def build_provider_bundle(config: ProviderConfig) -> ProviderBundle:
             )
         except ValueError as exc:
             sec_provider = UnavailableSecProvider(str(exc))
+    price_provider: object
+    if config.mode == DataMode.LIVE and config.price_provider == "alpha_vantage":
+        price_provider = AlphaVantagePriceProvider(AlphaVantagePriceProviderConfig(api_key=config.alpha_vantage_api_key))
+    else:
+        price_provider = mock
 
     return ProviderBundle(
         mode=config.mode,
         company_facts_provider=sec_provider,
         filings_provider=sec_provider,
-        price_provider=mock,
+        price_provider=price_provider,
+        price_history_provider=price_provider,
         benchmark_provider=mock,
         fred_provider=FredProvider(FredProviderConfig(api_key=config.fred_api_key)),
         eia_provider=EiaProvider(EiaProviderConfig(api_key=config.eia_api_key)),

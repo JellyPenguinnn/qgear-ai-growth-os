@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from qgear_core.enums import EarningsThesisChange
+from qgear_core.enums import DataMode, EarningsThesisChange
+from qgear_core.evidence import validate_action_evidence
 from qgear_core.models import Evidence
 
 
@@ -62,7 +63,8 @@ def classify_earnings_review(review: EarningsReview) -> EarningsThesisChange:
             (review.eps_surprise_pct or 0) > 5,
         )
     )
-    if positive_count >= 3 and negative_count == 0 and bool(review.evidence):
+    has_valid_evidence = bool(review.evidence) and not validate_action_evidence(review.evidence, mode=DataMode.DEMO)
+    if positive_count >= 3 and negative_count == 0 and has_valid_evidence:
         return EarningsThesisChange.STRENGTHENED
 
     return EarningsThesisChange.UNCHANGED

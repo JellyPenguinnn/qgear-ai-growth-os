@@ -27,6 +27,26 @@ DecisionAction = Literal[
 ]
 ThesisStatus = Literal["NOT_STARTED", "DRAFT", "APPROVED", "NEEDS_REVIEW", "BROKEN"]
 Confidence = Literal["LOW", "MEDIUM", "HIGH"]
+EvidenceSourceType = Literal[
+    "DEMO",
+    "MANUAL",
+    "AI_DRAFT",
+    "AI_USER_VERIFIED",
+    "SEC_FILING",
+    "EARNINGS_RELEASE",
+    "TRANSCRIPT",
+    "PRICE_PROVIDER",
+    "MACRO_PROVIDER",
+    "ENERGY_PROVIDER",
+    "OTHER",
+]
+EvidenceVerificationStatus = Literal[
+    "UNVERIFIED",
+    "USER_VERIFIED",
+    "PROVIDER_VERIFIED",
+    "SYSTEM_VALIDATED",
+    "REJECTED",
+]
 MistakeCategory = Literal[
     "NONE",
     "THESIS_DRIFT",
@@ -110,6 +130,14 @@ class EvidenceObjectRequest(BaseModel):
     source_date: str
     confidence: Confidence
     disproves_if: str = Field(min_length=10)
+    source_type: EvidenceSourceType = "MANUAL"
+    verification_status: EvidenceVerificationStatus = "USER_VERIFIED"
+    source_url: str | None = None
+    retrieved_at: str | None = None
+    provider: str | None = None
+    accession_number: str | None = None
+    filing_date: str | None = None
+    period_end_date: str | None = None
 
     @field_validator("source_date")
     @classmethod

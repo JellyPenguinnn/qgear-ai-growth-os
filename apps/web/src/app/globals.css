@@ -277,6 +277,41 @@ p {
   gap: var(--space-3);
 }
 
+.status-list,
+.plain-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.status-list {
+  margin-top: var(--space-4);
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: var(--space-4);
+}
+
+.status-row span:first-child {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.plain-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.plain-list li {
+  line-height: 1.45;
+}
+
 .provider-badge,
 .badge {
   display: inline-flex;

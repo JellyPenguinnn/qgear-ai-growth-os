@@ -2,10 +2,10 @@ import Link from "next/link";
 import type { Route } from "next";
 import { StateBadge } from "@/components/StateBadge";
 import { EmptyState, MetricCard, PageHeader, ProviderStatusBadge, SectionCard } from "@/components/ui";
-import { getToday } from "@/lib/api";
+import { getDataHealth, getToday } from "@/lib/api";
 
 export default async function TodayPage() {
-  const today = await getToday();
+  const [today, dataHealth] = await Promise.all([getToday(), getDataHealth()]);
 
   return (
     <div className="page">
@@ -45,6 +45,36 @@ export default async function TodayPage() {
       <SectionCard title="Daily Stance" description="Default to discipline unless the evidence changed.">
         <div className="callout">
           <strong>{today.default_stance}</strong> {today.stance_reason}
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Data Health Summary"
+        description="Review source mode and provider issues before looking at rankings."
+        actions={
+          <Link href="/data-health" className="button secondary">
+            Data Health
+          </Link>
+        }
+      >
+        <div className="grid cols-4">
+          <MetricCard label="Mode" value={dataHealth.mode.replaceAll("_", " ")} detail="Demo, live, or mixed data context" />
+          <MetricCard label="SEC" value={dataHealth.provider_status.providers.company_facts ?? "not configured"} detail="Financial and filing evidence source" />
+          <MetricCard label="Price history" value={dataHealth.provider_status.providers.price_history ?? "not configured"} detail="Technical confirmation only" />
+          <MetricCard label="AI" value={dataHealth.provider_status.ai.provider_metadata.status} detail="Draft-only; explicit requests only" />
+        </div>
+        <div className="status-list">
+          {dataHealth.sections.map((section) => (
+            <div className="status-row" key={section.name}>
+              <span>
+                <strong>{section.name}</strong>
+                <small>{section.note}</small>
+              </span>
+              <span className={section.can_support_action ? "badge ok" : "badge warn"}>
+                {section.can_support_action ? "Can support gates" : "Review only"}
+              </span>
+            </div>
+          ))}
         </div>
       </SectionCard>
 

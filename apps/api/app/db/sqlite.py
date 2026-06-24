@@ -83,6 +83,14 @@ def init_db() -> None:
                 source_date TEXT NOT NULL,
                 confidence TEXT NOT NULL,
                 disproves_if TEXT NOT NULL,
+                source_type TEXT NOT NULL DEFAULT 'MANUAL',
+                verification_status TEXT NOT NULL DEFAULT 'USER_VERIFIED',
+                source_url TEXT,
+                retrieved_at TEXT,
+                provider TEXT,
+                accession_number TEXT,
+                filing_date TEXT,
+                period_end_date TEXT,
                 related_type TEXT NOT NULL,
                 related_id INTEGER,
                 created_at TEXT NOT NULL
@@ -124,6 +132,20 @@ def init_db() -> None:
                 "followed_system": "INTEGER NOT NULL DEFAULT 1",
                 "later_review": "TEXT NOT NULL DEFAULT ''",
                 "process_score": "REAL NOT NULL DEFAULT 0",
+            },
+        )
+        _ensure_columns(
+            connection,
+            "evidence_objects",
+            {
+                "source_type": "TEXT NOT NULL DEFAULT 'MANUAL'",
+                "verification_status": "TEXT NOT NULL DEFAULT 'USER_VERIFIED'",
+                "source_url": "TEXT",
+                "retrieved_at": "TEXT",
+                "provider": "TEXT",
+                "accession_number": "TEXT",
+                "filing_date": "TEXT",
+                "period_end_date": "TEXT",
             },
         )
 
@@ -325,6 +347,14 @@ def add_evidence_object(ticker: str, payload: dict[str, Any], *, related_type: s
         "source_date": payload["source_date"],
         "confidence": payload["confidence"],
         "disproves_if": payload["disproves_if"],
+        "source_type": payload.get("source_type", "MANUAL"),
+        "verification_status": payload.get("verification_status", "USER_VERIFIED"),
+        "source_url": payload.get("source_url"),
+        "retrieved_at": payload.get("retrieved_at"),
+        "provider": payload.get("provider"),
+        "accession_number": payload.get("accession_number"),
+        "filing_date": payload.get("filing_date"),
+        "period_end_date": payload.get("period_end_date"),
         "related_type": related_type,
         "related_id": related_id,
         "created_at": timestamp,
@@ -333,8 +363,10 @@ def add_evidence_object(ticker: str, payload: dict[str, Any], *, related_type: s
         cursor = connection.execute(
             """
             INSERT INTO evidence_objects
-              (ticker, claim, evidence, source, source_date, confidence, disproves_if, related_type, related_id, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              (ticker, claim, evidence, source, source_date, confidence, disproves_if,
+               source_type, verification_status, source_url, retrieved_at, provider, accession_number,
+               filing_date, period_end_date, related_type, related_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 row["ticker"],
@@ -344,6 +376,14 @@ def add_evidence_object(ticker: str, payload: dict[str, Any], *, related_type: s
                 row["source_date"],
                 row["confidence"],
                 row["disproves_if"],
+                row["source_type"],
+                row["verification_status"],
+                row["source_url"],
+                row["retrieved_at"],
+                row["provider"],
+                row["accession_number"],
+                row["filing_date"],
+                row["period_end_date"],
                 row["related_type"],
                 row["related_id"],
                 row["created_at"],

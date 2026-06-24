@@ -253,3 +253,74 @@
   - Attempted in-app Browser visual smoke; the Browser runtime failed before navigation with `sandboxCwd must be an absolute file URI`, so visual screenshot/DOM inspection remains unverified.
   - Updated project status and roadmap from blocked to locally verified, with GitHub-hosted CI observation still pending after push.
   - Preserved all Q-GEAR guardrails: no auto-trading, no broker execution, no margin, no options-by-default, no price-only buy/add behavior, and AI remains explicit, draft-only, disabled by default, and unable to mutate decisions automatically.
+
+## 2026-06-24
+
+- Started v2.1 Professional Live Research Foundation.
+- Loaded required v2.1 specs:
+  - `docs/QGEAR_V2_1_PROFESSIONAL_LIVE_RESEARCH_SPEC.md`
+  - `docs/QGEAR_CORE_BRAIN_V2_1_SPEC.md`
+  - `docs/QGEAR_LIVE_DATA_AND_PROVIDER_SPEC.md`
+  - `docs/QGEAR_UI_UX_V2_1_SPEC.md`
+  - `docs/QGEAR_V2_1_QA_AND_RELEASE_CHECKLIST.md`
+- Confirmed initial repo status before edits: `main...origin/main`.
+- Completed baseline local verification:
+  - `python3 scripts/run_tests.py`: passed with 63 tests before edits.
+  - `python3 -m compileall packages apps/api scripts tests`: passed.
+  - `python3 scripts/seed_local_data.py`: passed; DuckDB optional/unavailable in the global Python context.
+  - `cd apps/web && npm run lint`: passed.
+  - `cd apps/web && npm run typecheck`: passed.
+  - `cd apps/web && npm run build`: passed.
+  - `cd apps/web && npm audit --omit=dev`: sandbox DNS failed first, then passed with 0 vulnerabilities after approved registry access.
+- Spawned bounded read-only v2.1 audit agents for Core Brain, Live Data, Backend/API, Frontend/UI/UX, AI Safety, QA/CI, Security/Privacy, and Documentation/PM.
+- Consolidated audit findings:
+  - Core source/evidence/data-quality models and gates were missing before this run.
+  - SEC companyfacts parsing, ticker-CIK mapping, financial routes, price history, technical engine, macro/energy routes, and Data Health UI remain to be implemented.
+  - Security posture remains local-first with no tracked secrets or trading/broker layer, but non-loopback write protection, remote API URL confirmation, process-wide SEC throttling, and SEC cache/config safe-failure handling remain future hardening tasks.
+- Implemented Milestone B core source-quality foundation:
+  - Added `EvidenceSourceType`, `EvidenceVerificationStatus`, `EvidenceQuality`, and `DataMode`.
+  - Extended core `Evidence` with source/verification/provider metadata.
+  - Added `DataQualitySnapshot`.
+  - Added pure evidence helper functions for action evidence validation, price-only detection, source quality scoring, and evidence coverage scoring.
+  - Wired source/data-quality gates into `evaluate_decision`.
+  - Hardened earnings strengthened classification to require valid evidence.
+  - Added regression tests for AI drafts, user-verified AI evidence, live-mode demo blocking, SEC/provider-verified evidence, missing source type, price-only evidence, low source quality, provider errors, and mixed-mode caution.
+- Re-ran verification after core changes:
+  - `python3 scripts/run_tests.py`: passed with 72 tests.
+  - `python3 -m compileall packages apps/api scripts tests`: passed.
+  - `python3 scripts/seed_local_data.py`: passed; DuckDB optional/unavailable in the global Python context.
+- Implemented the first Milestone C SEC financial/data-quality slice:
+  - Added demo ticker-to-CIK mapping.
+  - Added SEC companyfacts financial snapshot parser with period, source metadata, missing metrics, and free-cash-flow calculation.
+  - Added deterministic NVDA SEC-style companyfacts mock/fixture data.
+  - Added `/financials/{ticker}`, `/financials/{ticker}/metrics`, `/data/quality/{ticker}`, `/data/health`, and explicit `POST /providers/sec/refresh/{ticker}`.
+  - Added provider and API smoke tests proving the new routes are review-only and work without live network access.
+- Re-ran verification after the Milestone C slice:
+  - `python3 scripts/run_tests.py`: passed with 74 tests.
+  - `python3 -m compileall packages apps/api scripts tests`: passed.
+  - `python3 scripts/seed_local_data.py`: passed; DuckDB optional/unavailable in the global Python context.
+- Implemented Milestones D-F data foundation and UI clarity:
+  - Added deterministic mock adjusted price history and technical snapshot calculations for moving averages, relative strength, 52-week drawdown, volume trend, and technical regime.
+  - Added safe Alpha Vantage missing-key/not-implemented provider stub and `QGEAR_PRICE_PROVIDER`.
+  - Added `/prices/{ticker}`, `/technical/{ticker}`, price/benchmark explicit refresh routes, `/macro/status`, `/macro/fred/{series_id}`, `/energy/status`, and `/energy/eia/context`.
+  - Added top-level `/data-health`, Data Health navigation, Today data-health summary, and Stock Workbench data-quality card.
+  - Updated README, API examples, project status, and roadmap.
+- Re-ran verification after Milestones D-F:
+  - `python3 scripts/run_tests.py`: passed with 76 tests.
+  - `python3 -m compileall packages apps/api scripts tests`: passed.
+  - `cd apps/web && npm run lint`: passed.
+  - `cd apps/web && npm run typecheck`: passed.
+  - `cd apps/web && npm run build`: passed.
+- Completed v2.1 release pass:
+  - Persisted source type, verification status, source URL, provider, accession, filing date, and period-end metadata through SQLite evidence saves, request schemas, earnings evidence routes, and stock-detail evidence tables.
+  - Added regression coverage proving saved evidence provenance roundtrips through the API.
+  - Re-ran `python3 scripts/run_tests.py`: passed with 76 tests.
+  - Re-ran `python3 -m compileall packages apps/api scripts tests`: passed.
+  - Re-ran `python3 scripts/seed_local_data.py`: passed; DuckDB remained optional/unavailable in the global Python context.
+  - Re-ran frontend lint/typecheck/build: passed.
+  - Re-ran `npm audit --omit=dev`: sandbox DNS failed first, then approved registry-access rerun passed with 0 vulnerabilities.
+  - Re-ran API smoke with approved local-server binding. `/health`, `/data/health`, `/financials/NVDA`, `/technical/NVDA`, `/macro/fred/FEDFUNDS`, `/universe`, `/portfolio`, `/earnings`, `/reports/weekly`, `/energy/eia/context`, and `/prices/NVDA` returned HTTP 200.
+  - Re-ran built Next route smoke with approved local-server binding. `/`, `/data-health`, `/universe/NVDA`, `/pipeline`, `/settings`, `/universe`, `/evidence`, `/earnings`, `/portfolio`, `/journal`, and `/reports` returned HTTP 200.
+  - HTML phrase checks confirmed the new Data Health and Stock Workbench data-quality surfaces rendered expected text.
+  - Attempted in-app Browser visual smoke; the Browser runtime failed before navigation with `sandboxCwd must be an absolute file URI`.
+  - Preserved all Q-GEAR guardrails: no auto-trading, no broker execution, no margin, no options-by-default, no price-only buy/add behavior, and AI remains explicit, draft-only, disabled by default, and unable to mutate decisions automatically.

@@ -41,6 +41,16 @@ class ApiSmokeTests(unittest.TestCase):
             "/reports/quarterly",
             "/reports/annual",
             "/providers/status",
+            "/financials/NVDA",
+            "/financials/NVDA/metrics",
+            "/prices/NVDA",
+            "/technical/NVDA",
+            "/data/quality/NVDA",
+            "/data/health",
+            "/macro/status",
+            "/macro/fred/FEDFUNDS",
+            "/energy/status",
+            "/energy/eia/context",
             "/valuation/backtest/demo",
         ):
             with self.subTest(path=path):
@@ -160,6 +170,52 @@ class ApiSmokeTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
 
+    def test_financials_and_data_quality_routes_are_review_only(self) -> None:
+        financials = self.client.get("/financials/NVDA").json()
+        metrics = self.client.get("/financials/NVDA/metrics").json()
+        prices = self.client.get("/prices/NVDA").json()
+        technical = self.client.get("/technical/NVDA").json()
+        quality = self.client.get("/data/quality/NVDA").json()
+        missing = self.client.get("/data/quality/NOPE").json()
+        health = self.client.get("/data/health").json()
+        sec_refresh = self.client.post("/providers/sec/refresh/NVDA").json()
+        price_refresh = self.client.post("/providers/prices/refresh/NVDA").json()
+        benchmark_refresh = self.client.post("/providers/benchmarks/refresh").json()
+        macro = self.client.get("/macro/fred/FEDFUNDS").json()
+        energy = self.client.get("/energy/eia/context").json()
+
+        self.assertEqual(financials["status"], "ok")
+        self.assertEqual(financials["snapshot"]["ticker"], "NVDA")
+        self.assertEqual(financials["snapshot"]["source_metadata"]["mode"], "demo")
+        self.assertEqual(metrics["metrics"]["revenue"], 44_062_000_000)
+        self.assertEqual(metrics["metrics"]["free_cash_flow"], 25_900_000_000)
+        self.assertTrue(metrics["not_trade_instruction"])
+        self.assertEqual(prices["status"], "ok")
+        self.assertEqual(len(prices["prices"]), 260)
+        self.assertTrue(prices["not_trade_instruction"])
+        self.assertEqual(technical["status"], "ok")
+        self.assertEqual(technical["technical"]["technical_regime"], "SUPPORTIVE")
+        self.assertTrue(technical["not_trade_instruction"])
+        self.assertEqual(quality["status"], "ok")
+        self.assertFalse(quality["can_support_action_in_live_mode"])
+        self.assertTrue(quality["not_trade_instruction"])
+        self.assertEqual(missing["status"], "missing_mapping")
+        self.assertEqual(health["status"], "review_only")
+        self.assertTrue(health["not_trade_instruction"])
+        self.assertEqual(sec_refresh["status"], "ok")
+        self.assertTrue(sec_refresh["explicit_refresh"])
+        self.assertTrue(sec_refresh["not_trade_instruction"])
+        self.assertEqual(price_refresh["status"], "ok")
+        self.assertTrue(price_refresh["explicit_refresh"])
+        self.assertTrue(price_refresh["not_trade_instruction"])
+        self.assertEqual(benchmark_refresh["status"], "ok")
+        self.assertTrue(benchmark_refresh["explicit_refresh"])
+        self.assertTrue(benchmark_refresh["not_trade_instruction"])
+        self.assertEqual(macro["status"], "missing_api_key")
+        self.assertTrue(macro["review_only"])
+        self.assertEqual(energy["status"], "missing_api_key")
+        self.assertTrue(energy["review_only"])
+
     def test_ai_status_and_disabled_routes_are_draft_only(self) -> None:
         status = self.client.get("/ai/status").json()
         response = self.client.post(
@@ -204,6 +260,14 @@ class ApiSmokeTests(unittest.TestCase):
             "source_date": "2026-06-22",
             "confidence": "HIGH",
             "disproves_if": "Guidance is cut, AI demand slows, or margins deteriorate.",
+            "source_type": "EARNINGS_RELEASE",
+            "verification_status": "USER_VERIFIED",
+            "source_url": "local://tests/earnings/nvda",
+            "retrieved_at": "2026-06-22T00:00:00+00:00",
+            "provider": "manual",
+            "accession_number": "manual-earnings-smoke",
+            "filing_date": "2026-06-22",
+            "period_end_date": "2026-04-30",
         }
         evidence_response = self.client.post("/earnings/NVDA/evidence", json=evidence_payload)
         review_response = self.client.post(
@@ -229,11 +293,22 @@ class ApiSmokeTests(unittest.TestCase):
 
         self.assertEqual(evidence_response.status_code, 200)
         self.assertEqual(review_response.status_code, 200)
+        self.assertEqual(evidence_response.json()["evidence"]["source_type"], "EARNINGS_RELEASE")
+        self.assertEqual(evidence_response.json()["evidence"]["verification_status"], "USER_VERIFIED")
+        self.assertEqual(evidence_response.json()["evidence"]["source_url"], "local://tests/earnings/nvda")
         self.assertEqual(review_response.json()["thesis_status_change"], "STRENGTHENED")
         self.assertGreaterEqual(len(stored["stored_evidence"]), 2)
         self.assertGreaterEqual(len(stored["stored_reviews"]), 1)
         self.assertTrue(
             any(item["claim"] == evidence_payload["claim"] for item in detail["evidence_table"])
+        )
+        self.assertTrue(
+            any(
+                item["claim"] == evidence_payload["claim"]
+                and item["source_type"] == "EARNINGS_RELEASE"
+                and item["verification_status"] == "USER_VERIFIED"
+                for item in detail["evidence_table"]
+            )
         )
 
     def test_earnings_evidence_requires_iso_source_date(self) -> None:

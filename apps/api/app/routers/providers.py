@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Query
 
 from app.core.config import settings
+from app.core.ticker_map import ticker_cik
 from app.serializers import to_jsonable
 from qgear_ai.providers import build_ai_provider
 from qgear_ai.service import AIResearchService
@@ -15,7 +16,12 @@ DEFAULT_BENCHMARKS = ("SPY", "QQQ", "XLK", "SMH")
 
 
 def _data_mode() -> DataMode:
-    return DataMode.LIVE if settings.environment.lower() == "live" else DataMode.DEMO
+    environment = settings.environment.lower()
+    if environment == "live":
+        return DataMode.LIVE
+    if environment == "mixed":
+        return DataMode.MIXED
+    return DataMode.DEMO
 
 
 def _bundle():
@@ -25,6 +31,8 @@ def _bundle():
             cache_dir=settings.cache_dir,
             sec_user_agent=settings.sec_user_agent,
             sec_max_requests_per_second=settings.sec_max_requests_per_second,
+            price_provider=settings.price_provider,
+            alpha_vantage_api_key=settings.alpha_vantage_api_key,
             fred_api_key=settings.fred_api_key,
             eia_api_key=settings.eia_api_key,
         )
@@ -89,3 +97,70 @@ def price_snapshots(tickers: str = Query(default="NVDA,AMD,MU")) -> dict:
 def benchmark_snapshots(benchmarks: str = Query(default=",".join(DEFAULT_BENCHMARKS))) -> dict:
     response = _bundle().benchmark_provider.benchmark_snapshots(_split_symbols(benchmarks))
     return _response(response)
+
+
+@router.post("/prices/refresh/{ticker}")
+def refresh_price_history(ticker: str) -> dict:
+    normalized = ticker.upper()
+    response = _bundle().price_history_provider.daily_adjusted_history(normalized)
+    return to_jsonable(
+        {
+            "status": response.status,
+            "ticker": normalized,
+            "metadata": response.metadata,
+            "rows": len(response.payload.get("prices", [])),
+            "explicit_refresh": True,
+            "not_trade_instruction": True,
+            "note": "Price data can confirm timing/risk only; it cannot create a thesis or buy/add action.",
+        }
+    )
+
+
+@router.post("/benchmarks/refresh")
+def refresh_benchmarks(benchmarks: str = Query(default=",".join(DEFAULT_BENCHMARKS))) -> dict:
+    symbols = _split_symbols(benchmarks)
+    bundle = _bundle()
+    snapshots = bundle.benchmark_provider.benchmark_snapshots(symbols)
+    histories = {
+        symbol: bundle.price_history_provider.daily_adjusted_history(symbol).metadata
+        for symbol in symbols
+    }
+    return to_jsonable(
+        {
+            "status": snapshots.status,
+            "benchmarks": symbols,
+            "snapshot_metadata": snapshots.metadata,
+            "history_metadata": histories,
+            "explicit_refresh": True,
+            "not_trade_instruction": True,
+        }
+    )
+
+
+@router.post("/sec/refresh/{ticker}")
+def refresh_sec_ticker(ticker: str) -> dict:
+    normalized = ticker.upper()
+    cik = ticker_cik(normalized)
+    if not cik:
+        return {
+            "status": "missing_mapping",
+            "ticker": normalized,
+            "message": "No CIK mapping is available for this ticker.",
+            "not_trade_instruction": True,
+        }
+
+    bundle = _bundle()
+    facts = bundle.company_facts_provider.company_facts(cik)
+    filings = bundle.filings_provider.filing_metadata(cik, limit=5)
+    return to_jsonable(
+        {
+            "status": "ok" if facts.status.value == "ok" and filings.status.value == "ok" else "provider_issue",
+            "ticker": normalized,
+            "cik": cik,
+            "mode": bundle.mode,
+            "company_facts": {"metadata": facts.metadata},
+            "filings": {"metadata": filings.metadata, "payload": filings.payload},
+            "explicit_refresh": True,
+            "not_trade_instruction": True,
+        }
+    )

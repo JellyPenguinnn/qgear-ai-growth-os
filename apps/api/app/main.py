@@ -6,7 +6,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.analytics import init_duckdb
 from app.db.sqlite import init_db
-from app.routers import ai, alerts, earnings, journal, pipeline, portfolio, providers, reports, settings as settings_router, theses, today, universe, valuation
+from app.routers import (
+    ai,
+    alerts,
+    data,
+    energy,
+    earnings,
+    financials,
+    journal,
+    macro,
+    pipeline,
+    portfolio,
+    prices,
+    providers,
+    reports,
+    settings as settings_router,
+    theses,
+    today,
+    universe,
+    valuation,
+)
 from qgear_ai.providers import build_ai_provider
 from qgear_ai.service import AIResearchService
 
@@ -35,6 +54,11 @@ def create_app() -> FastAPI:
     app.include_router(portfolio.router)
     app.include_router(journal.router)
     app.include_router(earnings.router)
+    app.include_router(financials.router)
+    app.include_router(prices.router)
+    app.include_router(data.router)
+    app.include_router(macro.router)
+    app.include_router(energy.router)
     app.include_router(providers.router)
     app.include_router(reports.router)
     app.include_router(valuation.router)

@@ -1,9 +1,14 @@
 from __future__ import annotations
 
-from datetime import date
-
-from qgear_core.enums import Confidence, DecisionState, DrawdownMode, EarningsThesisChange, TechnicalRegime
-from qgear_core.models import DecisionInput, DecisionResult, Evidence
+from qgear_core.enums import DataMode, DecisionState, DrawdownMode, EarningsThesisChange, TechnicalRegime
+from qgear_core.evidence import (
+    EVIDENCE_COVERAGE_MINIMUM,
+    SOURCE_QUALITY_MINIMUM,
+    calculate_evidence_coverage_score,
+    calculate_source_quality_score,
+    validate_action_evidence,
+)
+from qgear_core.models import DecisionInput, DecisionResult
 from qgear_core.risk import classify_drawdown_mode
 
 
@@ -29,30 +34,40 @@ def _result(
     )
 
 
-def _positive_evidence_validation_errors(evidence_items: tuple[Evidence, ...]) -> tuple[str, ...]:
-    if not evidence_items:
-        return ("Fresh positive evidence must include a structured evidence object.",)
+def _decision_mode(decision_input: DecisionInput) -> DataMode:
+    if decision_input.data_quality_snapshot:
+        return decision_input.data_quality_snapshot.mode
+    return decision_input.mode
+
+
+def _data_quality_gate_errors(decision_input: DecisionInput) -> tuple[str, ...]:
+    snapshot = decision_input.data_quality_snapshot
+    mode = _decision_mode(decision_input)
+    source_quality_score = snapshot.source_quality_score if snapshot else decision_input.source_quality_score
+    evidence_coverage_score = snapshot.evidence_coverage_score if snapshot else decision_input.evidence_coverage_score
+    provider_errors = snapshot.provider_errors if snapshot else ()
+    missing_required_inputs = snapshot.missing_required_inputs if snapshot else ()
+    stale_inputs = snapshot.stale_inputs if snapshot else ()
 
     errors: list[str] = []
-    for index, evidence in enumerate(evidence_items, start=1):
-        prefix = f"Positive evidence #{index}"
-        if not evidence.claim.strip():
-            errors.append(f"{prefix} is missing a claim.")
-        if not evidence.evidence.strip():
-            errors.append(f"{prefix} is missing evidence detail.")
-        if not evidence.source.strip():
-            errors.append(f"{prefix} is missing a source.")
-        if not evidence.source_date.strip():
-            errors.append(f"{prefix} is missing a source date.")
-        else:
-            try:
-                date.fromisoformat(evidence.source_date)
-            except ValueError:
-                errors.append(f"{prefix} source date must be ISO format YYYY-MM-DD.")
-        if evidence.confidence == Confidence.LOW:
-            errors.append(f"{prefix} confidence is LOW; action-changing evidence must be at least MEDIUM confidence.")
-        if not evidence.disproves_if.strip():
-            errors.append(f"{prefix} is missing disproof criteria.")
+    if source_quality_score < SOURCE_QUALITY_MINIMUM:
+        errors.append(
+            f"Source quality score {source_quality_score:g} is below the {SOURCE_QUALITY_MINIMUM:g} action threshold."
+        )
+    if evidence_coverage_score < EVIDENCE_COVERAGE_MINIMUM:
+        errors.append(
+            f"Evidence coverage score {evidence_coverage_score:g} is below the {EVIDENCE_COVERAGE_MINIMUM:g} action threshold."
+        )
+    if stale_inputs:
+        errors.append(f"Stale data inputs block action-changing decisions: {', '.join(stale_inputs)}.")
+    if missing_required_inputs:
+        errors.append(f"Missing required data inputs block action-changing decisions: {', '.join(missing_required_inputs)}.")
+    if mode == DataMode.LIVE and provider_errors:
+        errors.append(f"Provider errors block live-mode action-changing decisions: {', '.join(provider_errors)}.")
+    if decision_input.requires_live_data and mode == DataMode.DEMO:
+        errors.append("Live data is required for this decision, but current mode is demo.")
+    if mode == DataMode.MIXED and provider_errors:
+        errors.append(f"Mixed-mode provider errors require review before adding risk: {', '.join(provider_errors)}.")
     return tuple(errors)
 
 
@@ -67,7 +82,13 @@ def evaluate_decision(decision_input: DecisionInput) -> DecisionResult:
     reasons: list[str] = []
     blocked: list[str] = []
     drawdown_mode = classify_drawdown_mode(decision_input.portfolio.portfolio_drawdown_pct)
-    evidence_errors = _positive_evidence_validation_errors(decision_input.positive_evidence)
+    mode = _decision_mode(decision_input)
+    evidence_errors = validate_action_evidence(decision_input.positive_evidence, mode=mode)
+    if decision_input.positive_evidence:
+        evidence_errors = (
+            *evidence_errors,
+            *_derived_source_quality_errors(decision_input, mode),
+        )
     has_valid_positive_evidence = decision_input.fresh_positive_evidence and not evidence_errors
 
     if drawdown_mode == DrawdownMode.HARD_AUDIT:
@@ -178,6 +199,18 @@ def evaluate_decision(decision_input: DecisionInput) -> DecisionResult:
             decision_input,
             state,
             ["Evidence is stale; refresh earnings, valuation, and thesis data before action."],
+            blocked,
+            drawdown_mode=drawdown_mode,
+        )
+
+    data_quality_errors = _data_quality_gate_errors(decision_input)
+    if data_quality_errors:
+        blocked.extend(data_quality_errors)
+        state = DecisionState.HOLD if decision_input.portfolio.owned else DecisionState.WATCHLIST
+        return _result(
+            decision_input,
+            state,
+            ["Source/data quality is not sufficient for an action-changing decision."],
             blocked,
             drawdown_mode=drawdown_mode,
         )
@@ -313,3 +346,22 @@ def evaluate_decision(decision_input: DecisionInput) -> DecisionResult:
     state = DecisionState.APPROVED_VALUATION_ZONE if decision_input.score.valuation_expected_irr >= 10 else DecisionState.APPROVED_THESIS
     reasons.append("Thesis and valuation are acceptable, but no fresh action-changing evidence is present.")
     return _result(decision_input, state, reasons, drawdown_mode=drawdown_mode)
+
+
+def _derived_source_quality_errors(decision_input: DecisionInput, mode: DataMode) -> tuple[str, ...]:
+    source_quality_score = calculate_source_quality_score(decision_input.positive_evidence)
+    evidence_coverage_score = calculate_evidence_coverage_score(decision_input.positive_evidence)
+    errors: list[str] = []
+    if source_quality_score < SOURCE_QUALITY_MINIMUM:
+        errors.append(
+            f"Positive evidence source quality score {source_quality_score:g} is below the {SOURCE_QUALITY_MINIMUM:g} action threshold."
+        )
+    if evidence_coverage_score < EVIDENCE_COVERAGE_MINIMUM:
+        errors.append(
+            f"Positive evidence coverage score {evidence_coverage_score:g} is below the {EVIDENCE_COVERAGE_MINIMUM:g} action threshold."
+        )
+    if mode == DataMode.MIXED:
+        demo_only = all(item.source_type and item.source_type.value == "DEMO" for item in decision_input.positive_evidence)
+        if demo_only:
+            errors.append("Mixed mode requires at least one non-demo verified evidence item before adding risk.")
+    return tuple(errors)

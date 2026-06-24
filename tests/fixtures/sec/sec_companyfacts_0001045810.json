@@ -1,0 +1,189 @@
+{
+  "cik": 1045810,
+  "entityName": "NVIDIA CORP",
+  "facts": {
+    "us-gaap": {
+      "RevenueFromContractWithCustomerExcludingAssessedTax": {
+        "label": "Revenue",
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 44062000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "GrossProfit": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 33000000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "OperatingIncomeLoss": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 28000000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "NetIncomeLoss": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 24500000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "EarningsPerShareDiluted": {
+        "units": {
+          "USD/shares": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 0.96,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "NetCashProvidedByUsedInOperatingActivities": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 27000000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "PaymentsToAcquirePropertyPlantAndEquipment": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 1100000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "CashAndCashEquivalentsAtCarryingValue": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 15000000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "Assets": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 125000000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "Liabilities": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 39000000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "LongTermDebtAndFinanceLeaseObligations": {
+        "units": {
+          "USD": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 8500000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      },
+      "WeightedAverageNumberOfDilutedSharesOutstanding": {
+        "units": {
+          "shares": [
+            {
+              "fy": 2026,
+              "fp": "Q1",
+              "form": "10-Q",
+              "filed": "2026-05-22",
+              "end": "2026-04-30",
+              "val": 24500000000,
+              "accn": "0001045810-26-000001"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

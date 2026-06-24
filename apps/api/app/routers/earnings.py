@@ -6,7 +6,7 @@ from app.db.sqlite import add_earnings_review, add_evidence_object, list_earning
 from app.schemas.requests import EarningsReviewRequest, EvidenceObjectRequest
 from app.serializers import to_jsonable
 from qgear_core.earnings import EarningsReview, classify_earnings_review
-from qgear_core.enums import Confidence
+from qgear_core.enums import Confidence, EvidenceSourceType, EvidenceVerificationStatus
 from qgear_core.demo import DEMO_UNIVERSE, get_company
 from qgear_core.models import Evidence
 
@@ -113,6 +113,14 @@ def create_earnings_review(ticker: str, payload: EarningsReviewRequest) -> dict:
             source_date=item.source_date,
             confidence=Confidence(item.confidence),
             disproves_if=item.disproves_if,
+            source_type=EvidenceSourceType(item.source_type),
+            verification_status=EvidenceVerificationStatus(item.verification_status),
+            source_url=item.source_url,
+            retrieved_at=item.retrieved_at,
+            provider=item.provider,
+            accession_number=item.accession_number,
+            filing_date=item.filing_date,
+            period_end_date=item.period_end_date,
         )
         for item in payload.evidence
     )

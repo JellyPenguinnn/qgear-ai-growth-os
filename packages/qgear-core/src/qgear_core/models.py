@@ -8,9 +8,12 @@ from qgear_core.enums import (
     BaseCurrency,
     Confidence,
     Country,
+    DataMode,
     DecisionState,
     DrawdownMode,
     EarningsThesisChange,
+    EvidenceSourceType,
+    EvidenceVerificationStatus,
     RiskStyle,
     TechnicalRegime,
     ThesisStatus,
@@ -25,6 +28,44 @@ class Evidence:
     source_date: str
     confidence: Confidence
     disproves_if: str
+    source_type: EvidenceSourceType | None = EvidenceSourceType.DEMO
+    verification_status: EvidenceVerificationStatus | None = EvidenceVerificationStatus.SYSTEM_VALIDATED
+    source_url: str | None = None
+    retrieved_at: str | None = None
+    provider: str | None = None
+    accession_number: str | None = None
+    filing_date: str | None = None
+    period_end_date: str | None = None
+
+
+@dataclass(frozen=True)
+class DataQualitySnapshot:
+    ticker: str
+    mode: DataMode = DataMode.DEMO
+    financial_data_status: str = "demo"
+    price_data_status: str = "demo"
+    filing_data_status: str = "demo"
+    earnings_data_status: str = "demo"
+    valuation_data_status: str = "demo"
+    technical_data_status: str = "demo"
+    source_quality_score: float = 100
+    evidence_coverage_score: float = 100
+    missing_required_inputs: tuple[str, ...] = field(default_factory=tuple)
+    stale_inputs: tuple[str, ...] = field(default_factory=tuple)
+    provider_errors: tuple[str, ...] = field(default_factory=tuple)
+
+    @property
+    def can_support_action_in_live_mode(self) -> bool:
+        return (
+            self.mode != DataMode.LIVE
+            or (
+                self.source_quality_score >= 70
+                and self.evidence_coverage_score >= 70
+                and not self.missing_required_inputs
+                and not self.stale_inputs
+                and not self.provider_errors
+            )
+        )
 
 
 @dataclass(frozen=True)
@@ -154,6 +195,11 @@ class DecisionInput:
     portfolio: PortfolioContext
     fresh_positive_evidence: bool
     expected_irr_weighted_pct: float | None = None
+    mode: DataMode = DataMode.DEMO
+    requires_live_data: bool = False
+    source_quality_score: float = 100
+    evidence_coverage_score: float = 100
+    data_quality_snapshot: DataQualitySnapshot | None = None
     price_change_pct: float = 0
     add_requested: bool = False
     guidance_cut_structural: bool = False

@@ -80,6 +80,9 @@ curl http://127.0.0.1:8000/providers/filings/1045810?limit=5
 curl http://127.0.0.1:8000/providers/company-facts/1045810
 curl "http://127.0.0.1:8000/providers/prices?tickers=NVDA,MU,SPY"
 curl http://127.0.0.1:8000/providers/benchmarks
+curl -X POST http://127.0.0.1:8000/providers/sec/refresh/NVDA
+curl -X POST http://127.0.0.1:8000/providers/prices/refresh/NVDA
+curl -X POST http://127.0.0.1:8000/providers/benchmarks/refresh
 ```
 
 Provider responses use a stable envelope:
@@ -135,6 +138,77 @@ Provider status also includes AI provider status. Default mode is disabled:
   }
 }
 ```
+
+## Financials And Data Quality
+
+```bash
+curl http://127.0.0.1:8000/financials/NVDA
+curl http://127.0.0.1:8000/financials/NVDA/metrics
+curl http://127.0.0.1:8000/data/quality/NVDA
+curl http://127.0.0.1:8000/data/health
+```
+
+Financial routes parse SEC-style companyfacts payloads into a review snapshot. In demo mode, the app uses deterministic local fixture data and clearly marks it as demo. In live mode, SEC data is still only one input to Q-GEAR gates; it cannot create a buy/add action by itself.
+
+Expected `/data/quality/NVDA` shape:
+
+```json
+{
+  "ticker": "NVDA",
+  "status": "ok",
+  "data_quality": {
+    "ticker": "NVDA",
+    "mode": "demo",
+    "financial_data_status": "ok",
+    "source_quality_score": 80,
+    "evidence_coverage_score": 75,
+    "missing_required_inputs": [],
+    "provider_errors": []
+  },
+  "can_support_action_in_live_mode": false,
+  "reason": "Demo financial data is useful for workflow testing but cannot support live-mode buy/add decisions.",
+  "not_trade_instruction": true
+}
+```
+
+`POST /providers/sec/refresh/{ticker}` is an explicit user-triggered refresh. It returns provider metadata and filing metadata only; it does not mutate a thesis, journal entry, position, score, or decision state.
+
+## Prices, Technicals, Macro, And Energy
+
+```bash
+curl http://127.0.0.1:8000/prices/NVDA
+curl http://127.0.0.1:8000/technical/NVDA
+curl http://127.0.0.1:8000/macro/status
+curl http://127.0.0.1:8000/macro/fred/FEDFUNDS
+curl http://127.0.0.1:8000/energy/status
+curl http://127.0.0.1:8000/energy/eia/context
+```
+
+Price and technical responses are timing/risk context only. They cannot create a thesis or a buy/add action.
+
+Expected `/technical/NVDA` shape:
+
+```json
+{
+  "status": "ok",
+  "ticker": "NVDA",
+  "technical": {
+    "as_of_date": "2026-06-22",
+    "close": 144.5,
+    "dma_50": 139.2,
+    "dma_150": 124.4,
+    "dma_200": 116.8,
+    "relative_strength_vs_spy_pct": 20.5,
+    "drawdown_from_52w_high_pct": 0.0,
+    "technical_regime": "SUPPORTIVE",
+    "reasons": ["Price is above the 50-day moving average."]
+  },
+  "not_trade_instruction": true,
+  "note": "Technical regime is risk/timing confirmation only and cannot create the investment thesis."
+}
+```
+
+FRED and EIA routes are review-only. Without optional keys they return `missing_api_key` metadata instead of crashing. Macro and energy context can raise review questions, but cannot create action permission.
 
 ## AI Draft Routes
 

@@ -1,6 +1,8 @@
 import { fallbackPortfolio, fallbackUniverse } from "./demo-data";
 import type {
   DecisionState,
+  DataHealthResponse,
+  DataQualityResponse,
   DemoCompany,
   PipelineItem,
   PipelineResponse,
@@ -198,6 +200,62 @@ function buildFallbackToday(): TodayResponse {
 
 export async function getToday(): Promise<TodayResponse> {
   return getJson<TodayResponse>("/today", buildFallbackToday());
+}
+
+function buildFallbackDataHealth(): DataHealthResponse {
+  const providerStatus = buildFallbackToday().provider_status;
+  return {
+    mode: "frontend_fallback",
+    status: "review_only",
+    provider_status: providerStatus,
+    sections: [
+      {
+        name: "Frontend fallback",
+        status: "API unavailable",
+        can_support_action: false,
+        note: "Fallback data cannot support action-changing decisions."
+      }
+    ],
+    missing_keys: {},
+    default_fred_series: ["FEDFUNDS", "DGS10", "DGS2", "CPIAUCSL", "UNRATE"],
+    what_can_support_action: ["Reconnect the local API and verify provider/user evidence before action-changing decisions."],
+    review_only_data: ["Frontend fallback data", "AI drafts", "Price-only context"],
+    not_trade_instruction: true
+  };
+}
+
+export async function getDataHealth(): Promise<DataHealthResponse> {
+  return getJson<DataHealthResponse>("/data/health", buildFallbackDataHealth());
+}
+
+export async function getDataQuality(ticker: string): Promise<DataQualityResponse | null> {
+  const fallbackCompany = fallbackUniverse.companies.find((company) => company.ticker === ticker.toUpperCase()) ?? null;
+  if (!fallbackCompany) {
+    return null;
+  }
+  return getJson<DataQualityResponse>(`/data/quality/${ticker}`, {
+    ticker: fallbackCompany.ticker,
+    status: "frontend_fallback",
+    data_quality: {
+      ticker: fallbackCompany.ticker,
+      mode: "frontend_fallback",
+      financial_data_status: "missing",
+      price_data_status: "missing",
+      filing_data_status: "missing",
+      earnings_data_status: "demo",
+      valuation_data_status: "demo",
+      technical_data_status: "demo",
+      source_quality_score: 0,
+      evidence_coverage_score: 0,
+      missing_required_inputs: ["api_context"],
+      stale_inputs: [],
+      provider_errors: ["Local API unavailable."]
+    },
+    can_support_action_in_live_mode: false,
+    reason: "Frontend fallback data cannot support action-changing decisions.",
+    source_metadata: null,
+    not_trade_instruction: true
+  });
 }
 
 export async function getPipeline(): Promise<PipelineResponse> {

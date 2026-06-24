@@ -1,16 +1,83 @@
 # Project Status
 
-Last updated: 2026-06-23
+Last updated: 2026-06-24
 
 ## Current Milestone
 
-Active milestone: v2.0 Polished Release Pass, locally verified and pushed to GitHub.
+Active milestone: v2.1 Professional Live Research Foundation, locally completed and ready for GitHub publish.
 
-v1.0 local/demo completion was achieved on 2026-06-22 and pushed as commit `26d55a4`. The v2.0 local release pass was verified locally on 2026-06-23 and pushed to `main` as commit `f167a3d`. GitHub-hosted CI still needs to be observed because the local `gh` CLI is unavailable and the GitHub connector did not return push-triggered workflow runs.
-
-Important working-tree note: `AGENTS.md` was modified before this run and was not edited during the v2.0 release pass. It is included in the release as the current repo contract.
+v2.0 was verified locally on 2026-06-23 and pushed to `main` as commit `f167a3d` with a docs follow-up at `86bd95f`. v2.1 started and was locally verified on 2026-06-24. GitHub-hosted CI still needs to be observed in GitHub after this v2.1 push.
 
 ## Audit Summary
+
+Eight read-only v2.1 specialist audits were started on 2026-06-24:
+
+- Core Brain: v1/v2 guardrails are intact, but v2.1 source/evidence/data-quality gates were missing before this run.
+- Live Data: SEC companyfacts parsing, ticker-CIK mapping, price history, technical engine, FRED/EIA routes, and mixed mode plumbing are implemented in demo/metadata-safe form; live provider network behavior remains unverified.
+- Backend/API: v2.1 financial, price, technical, macro, energy, and data-quality route coverage is implemented with fixture/mock-safe tests.
+- Frontend/UI/UX: Data Health is now a top-level page; Today and Stock Workbench show data-health/live-demo context.
+- AI Safety: AI remains draft-only; deterministic source-quality gates now block AI drafts, low-confidence evidence, price-only evidence, stale evidence, and unverified evidence from supporting buy/add decisions.
+- QA/CI: v2.1 route/provider/source-quality tests were added and passed locally.
+- Documentation/PM: v2.1 specs exist, but roadmap/status/API docs needed activation from v2.0 to v2.1.
+- Security/Privacy: no tracked secrets or trading/broker layers found; medium follow-ups remain for non-loopback write protection, remote frontend API URL confirmation, process-wide SEC throttling, and cache/config safe-failure handling.
+
+Consolidated accepted plan:
+
+- Milestone A: completed baseline local checks and documented v2.1 gaps.
+- Milestone B: completed pure `qgear-core` source/evidence/data-quality models and hard gates.
+- Milestone C-F: implemented SEC financials, data-quality, price/technical, macro/energy, and Data Health UI in small tested slices.
+- Milestone G: completed source-provenance persistence, API/built-route smoke, release docs, and final local verification.
+
+## v2.1 Milestone A — Baseline And CI Reality
+
+- Completed: read v2.1 specs and current repo state.
+- Completed: `git status --short --branch` showed `main...origin/main` before edits.
+- Completed: baseline `python3 scripts/run_tests.py` passed with 63 tests before edits.
+- Completed: baseline `python3 -m compileall packages apps/api scripts tests` passed.
+- Completed: baseline `python3 scripts/seed_local_data.py` passed; DuckDB remains optional/unavailable in the global Python context.
+- Completed: baseline frontend `npm run lint`, `npm run typecheck`, and `npm run build` passed.
+- Completed: baseline `npm audit --omit=dev` passed with 0 vulnerabilities after approved registry access.
+- Caveat: production `npm run build` rewrote `apps/web/next-env.d.ts` from `.next/dev/types/routes.d.ts` to `.next/types/routes.d.ts`; treat this as generated Next route-type churn before committing.
+
+## v2.1 Milestone B — Core Source-Quality Gates
+
+- Completed in core: added `EvidenceSourceType`, `EvidenceVerificationStatus`, `EvidenceQuality`, and `DataMode`.
+- Completed in core: extended `Evidence` with source type, verification status, source URL, provider, retrieved/accession/filing/period metadata.
+- Completed in core: added `DataQualitySnapshot`.
+- Completed in core: added pure evidence helpers for action evidence validation, price-only detection, source quality scoring, and coverage scoring.
+- Completed in core: decision engine blocks buy/add for AI_DRAFT, LOW confidence, missing source type/date/status, price-only evidence, demo evidence in live mode, low source quality, low evidence coverage, stale/missing inputs, and provider errors in live/mixed modes.
+- Completed in core: earnings `STRENGTHENED` classification now requires valid evidence under the same source-quality schema.
+- Completed tests: source-quality regression tests added; `python3 scripts/run_tests.py` passed with 72 tests after the core change.
+- Completed follow-up: SQLite/API evidence saves now persist and expose source type, verification status, URL, provider, filing/accession, and period metadata; provider outputs are surfaced through data-quality API/UI views.
+
+## v2.1 Milestone C — SEC Financial Foundation
+
+- Completed in API/core plumbing: added demo ticker-to-CIK mapping in `data/demo/ticker_cik_map.json`.
+- Completed in ingest: added canonical SEC companyfacts financial parsing for revenue, gross profit, operating income, net income, diluted EPS, operating cash flow, capex, free cash flow, balance sheet metrics, diluted shares, period metadata, and source metadata.
+- Completed in demo mode: added deterministic NVDA SEC-style companyfacts fixture to the mock provider.
+- Completed in API: added `/financials/{ticker}`, `/financials/{ticker}/metrics`, `/data/quality/{ticker}`, `/data/health`, and explicit `POST /providers/sec/refresh/{ticker}`.
+- Completed tests: provider fixture parsing and review-only API route coverage added; `python3 scripts/run_tests.py` passed with 74 tests after the route/parser change.
+- Completed checks: `python3 -m compileall packages apps/api scripts tests` passed; `python3 scripts/seed_local_data.py` passed with DuckDB still optional/unavailable in the global Python context.
+- Completed follow-up: final API/built-route smoke checks covered the v2.1 route surface, including financials, data health, prices, technicals, macro, energy, and evidence-provenance roundtrips.
+
+## v2.1 Milestones D-F — Price, Macro/Energy, And Data Health UI
+
+- Completed in ingest: added deterministic mock adjusted price history and technical snapshot calculations for 50/150/200DMA, benchmark relative strength, 52-week drawdown, volume trend, and technical regime.
+- Completed in ingest: added Alpha Vantage price-provider stub with safe `missing_api_key`/`not_implemented` responses.
+- Completed in API: added `/prices/{ticker}`, `/technical/{ticker}`, `POST /providers/prices/refresh/{ticker}`, and `POST /providers/benchmarks/refresh`.
+- Completed in API: added `/macro/status`, `/macro/fred/{series_id}`, `/energy/status`, and `/energy/eia/context`; missing optional FRED/EIA keys return metadata errors instead of crashing.
+- Completed in frontend: added top-level `/data-health`, navigation entry, Today data-health summary, and Stock Workbench data-quality card.
+- Completed tests: provider and API tests now cover mock price-history technical indicators, Alpha Vantage missing key, price/technical routes, macro/energy missing-key behavior, and explicit refresh routes.
+- Completed checks: frontend lint/typecheck/build passed after Data Health UI changes.
+
+## v2.1 Milestone G — Release Pass
+
+- Completed: persisted source-provenance fields for saved evidence through SQLite, request schemas, earnings save routes, and stock-detail API responses.
+- Completed: added API regression coverage for evidence source type, verification status, source URL, and provider metadata roundtrips.
+- Completed: reran Python tests, compile checks, seed validation, frontend lint/typecheck/build, dependency audit, API smoke, and built-route smoke.
+- Completed: verified no auto-trading, broker execution, margin, options-by-default, price-only buy/add behavior, or AI decision mutation was introduced.
+- Caveat: live SEC/FRED/EIA/Alpha Vantage network behavior remains optional and unverified; demo/metadata-safe behavior is verified.
+- Caveat: browser visual smoke remains blocked by the in-app Browser runtime initialization issue before navigation.
 
 Nine read-only specialist audits were completed on 2026-06-23:
 
@@ -196,6 +263,21 @@ git ls-files
 Confirm no tracked `.env`, local DB, DuckDB, cache, virtualenv, `node_modules`, `.next`, `__pycache__`, pytest cache, private key, or secret files exist.
 
 ## Latest Verification Results
+
+Latest verification on 2026-06-24 for v2.1:
+
+- `python3 scripts/run_tests.py`: passed, 76 tests.
+- `python3 -m compileall packages apps/api scripts tests`: passed.
+- `python3 scripts/seed_local_data.py`: passed; DuckDB reported optional unavailable in the global Python context.
+- `cd apps/web && npm run lint`: passed.
+- `cd apps/web && npm run typecheck`: passed.
+- `cd apps/web && npm run build`: passed, including the new `/data-health` route and the data-quality-enhanced Stock Workbench.
+- `cd apps/web && npm audit --omit=dev`: sandbox DNS failed first, then passed after approved registry access with 0 vulnerabilities.
+- API smoke required escalation because sandboxed port binding was blocked; escalated FastAPI server returned HTTP 200 for `/health`, `/data/health`, `/financials/NVDA`, `/technical/NVDA`, `/macro/fred/FEDFUNDS`, `/universe`, `/portfolio`, `/earnings`, `/reports/weekly`, `/energy/eia/context`, and `/prices/NVDA`.
+- Built Next route smoke required escalation because sandboxed port binding was blocked; escalated web server returned HTTP 200 for `/`, `/data-health`, `/universe/NVDA`, `/pipeline`, `/settings`, `/universe`, `/evidence`, `/earnings`, `/portfolio`, `/journal`, and `/reports`.
+- Built-route HTML checks confirmed Data Health Summary, Price history, No Action Unless Evidence Changed, Provider Sections, Missing Optional Keys, Safety Boundary, Data Quality, Source quality, Evidence quality, Technical / Risk State, and AI Assistant Panel text.
+- Browser visual smoke was attempted but blocked by the in-app Browser runtime `sandboxCwd` initialization issue before navigation.
+- `git ls-files data/sqlite data/duckdb data/cache apps/web/.next node_modules .env`: only `.gitkeep` placeholders are tracked.
 
 Latest verification on 2026-06-23 for v2.0:
 

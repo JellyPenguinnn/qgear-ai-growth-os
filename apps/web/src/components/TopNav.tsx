@@ -13,6 +13,7 @@ const nav: Array<{ href: string; label: string; matcher: (pathname: string) => b
   { href: "/portfolio", label: "Portfolio", matcher: (pathname) => pathname.startsWith("/portfolio") },
   { href: "/journal", label: "Journal", matcher: (pathname) => pathname.startsWith("/journal") },
   { href: "/reports", label: "Reports", matcher: (pathname) => pathname.startsWith("/reports") },
+  { href: "/data-health", label: "Data Health", matcher: (pathname) => pathname.startsWith("/data-health") },
   { href: "/settings", label: "Settings", matcher: (pathname) => pathname.startsWith("/settings") }
 ];
 

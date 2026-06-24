@@ -5,7 +5,7 @@ import { StockAIAssistantPanel } from "@/components/StockAIAssistantPanel";
 import { ThesisForm } from "@/components/ThesisForm";
 import { ValuationWorkbench } from "@/components/ValuationWorkbench";
 import { BlockerList, DecisionCard, EmptyState, EvidenceCard, MetricCard, PageHeader, SectionCard } from "@/components/ui";
-import { getProviderStatus, getStockDetail, getValuation } from "@/lib/api";
+import { getDataQuality, getProviderStatus, getStockDetail, getValuation } from "@/lib/api";
 
 function sizingForState(state: string) {
   if (state === "STARTER_ALLOWED") {
@@ -33,7 +33,12 @@ function evidenceQuality(items: { confidence: "LOW" | "MEDIUM" | "HIGH"; source_
 
 export default async function StockDetailPage({ params }: { params: Promise<{ ticker: string }> }) {
   const { ticker } = await params;
-  const [detail, providerStatus, valuation] = await Promise.all([getStockDetail(ticker), getProviderStatus(), getValuation(ticker)]);
+  const [detail, providerStatus, valuation, dataQuality] = await Promise.all([
+    getStockDetail(ticker),
+    getProviderStatus(),
+    getValuation(ticker),
+    getDataQuality(ticker)
+  ]);
   if (!detail) {
     notFound();
   }
@@ -199,6 +204,29 @@ export default async function StockDetailPage({ params }: { params: Promise<{ ti
 
         <aside className="grid">
           <MetricCard label="Q-GEAR score" value={company.score.total.toFixed(1)} detail="Score alone never creates action" />
+          <SectionCard title="Data Quality">
+            {dataQuality ? (
+              <>
+                <div className="grid cols-2 compact">
+                  <MetricCard label="Source quality" value={dataQuality.data_quality.source_quality_score} detail={dataQuality.data_quality.mode} />
+                  <MetricCard label="Evidence coverage" value={dataQuality.data_quality.evidence_coverage_score} detail="Action support still requires all gates" />
+                </div>
+                <p>{dataQuality.reason}</p>
+                <p>Financials: {dataQuality.data_quality.financial_data_status}</p>
+                <p>Prices: {dataQuality.data_quality.price_data_status}</p>
+                <p>Technical: {dataQuality.data_quality.technical_data_status}</p>
+                {dataQuality.data_quality.missing_required_inputs.length ? (
+                  <p className="warn-text">Missing: {dataQuality.data_quality.missing_required_inputs.join(", ")}</p>
+                ) : null}
+                {dataQuality.data_quality.provider_errors.length ? <p className="danger-text">Provider errors: {dataQuality.data_quality.provider_errors.join("; ")}</p> : null}
+              </>
+            ) : (
+              <EmptyState title="No data quality available" detail="Reconnect the API to inspect source quality and provider metadata." />
+            )}
+            <Link className="button secondary" href="/data-health">
+              Data Health
+            </Link>
+          </SectionCard>
           <SectionCard title="Scoring">
             <p>AI relevance: {company.score.ai_relevance.toFixed(1)} / 12</p>
             <p>Business quality: {company.score.business_quality.toFixed(1)} / 18</p>

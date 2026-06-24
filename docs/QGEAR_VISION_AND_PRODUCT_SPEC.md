@@ -17,7 +17,7 @@ docs/QGEAR_VISION_AND_PRODUCT_SPEC.md
 
 ## 2. Current state summary
 
-Current pushed repo state is a v1.0 local/demo research OS.
+Current local repo state is a v2.1 professional live research foundation ready for GitHub publish. The last pushed state may lag until the v2.1 commit is pushed and GitHub-hosted CI is observed.
 
 It already has:
 
@@ -34,20 +34,20 @@ It already has:
 - Local alerts and reports.
 - Tests for the core decision guardrails.
 
-Current limitations:
+Current limitations after v2.1:
 
-- UI/UX is functional but not impressive.
-- User flow is too complex and developer-like.
-- AI is not yet meaningfully integrated into the user workflow.
-- `qgear-ai` is still mostly a placeholder/helper package.
-- Price/benchmark data is mock only.
-- FRED/EIA are placeholders.
-- Live SEC behavior exists but is not fully verified.
+- UI/UX now includes live/demo/mixed data clarity and Data Health, but browser visual smoke remains blocked in the current Codex environment.
+- User flow is improved around Today, Pipeline, Evidence, Stock Workbench, Earnings, Portfolio, Journal, Reports, and Settings.
+- AI is integrated as explicit draft-only assistance, and source provenance now flows into evidence storage/core gates; live AI calls remain optional and require explicit acknowledgement.
+- `qgear-ai` has provider, schema, prompt, validation, and service foundations, but remains optional and disabled by default.
+- Price/benchmark data has deterministic mock fixtures plus a safe optional Alpha Vantage stub; live price behavior is not yet implemented.
+- FRED/EIA expose safe metadata/missing-key routes; live data calls remain unverified.
+- Live SEC behavior exists behind configured providers but is not fully verified in this environment.
 - Backtesting is fixture-only.
 - Valuation is too simple.
 - Research-source notes are incomplete.
 - GitHub Actions CI workflow exists; hosted run status should be verified after each push.
-- Visual browser smoke is not robust.
+- Visual browser smoke is not robust because the in-app Browser runtime fails before navigation.
 
 The next goal is not “more screens.” The next goal is a polished, AI-assisted research experience.
 

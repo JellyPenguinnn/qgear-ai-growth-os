@@ -56,6 +56,14 @@ export type EvidenceObject = {
   source_date: string;
   confidence: "LOW" | "MEDIUM" | "HIGH";
   disproves_if: string;
+  source_type?: string;
+  verification_status?: string;
+  source_url?: string | null;
+  retrieved_at?: string | null;
+  provider?: string | null;
+  accession_number?: string | null;
+  filing_date?: string | null;
+  period_end_date?: string | null;
 };
 
 export type AIDraftResponse = {
@@ -275,6 +283,62 @@ export type ProviderStatusResponse = {
     options: string;
     live_data_is_optional: boolean;
   };
+};
+
+export type ProviderMetadata = {
+  provider: string;
+  status: string;
+  source_url: string;
+  source_name: string;
+  retrieved_at: string;
+  cached: boolean;
+  source_date: string | null;
+  as_of_date: string | null;
+  cache_written_at: string | null;
+  cache_key: string | null;
+  error: string | null;
+  mode: string | null;
+};
+
+export type DataQualityResponse = {
+  ticker: string;
+  status: string;
+  data_quality: {
+    ticker: string;
+    mode: string;
+    financial_data_status: string;
+    price_data_status: string;
+    filing_data_status: string;
+    earnings_data_status: string;
+    valuation_data_status: string;
+    technical_data_status: string;
+    source_quality_score: number;
+    evidence_coverage_score: number;
+    missing_required_inputs: string[];
+    stale_inputs: string[];
+    provider_errors: string[];
+  };
+  can_support_action_in_live_mode: boolean;
+  reason: string;
+  source_metadata: ProviderMetadata | null;
+  not_trade_instruction: boolean;
+};
+
+export type DataHealthResponse = {
+  mode: string;
+  status: string;
+  provider_status: ProviderStatusResponse;
+  sections: Array<{
+    name: string;
+    status: string;
+    can_support_action: boolean;
+    note: string;
+  }>;
+  missing_keys: Record<string, string | null>;
+  default_fred_series: string[];
+  what_can_support_action: string[];
+  review_only_data: string[];
+  not_trade_instruction: boolean;
 };
 
 export type AIStatusResponse = {

@@ -11,12 +11,12 @@ The app is not an advisory product, not an auto-trader, and not a day-trading sy
 ## What The Local Demo Includes
 
 - Pure Python scoring, hard-gate decision policy, drawdown modes, and position sizing logic.
-- FastAPI backend with demo universe, stock detail, settings, thesis approval, portfolio, journal, earnings lab, provider metadata, valuation, alerts, and report routes.
+- FastAPI backend with demo universe, stock detail, settings, thesis approval, portfolio, journal, earnings lab, provider metadata, financials, data health, valuation, alerts, and report routes.
 - SQLite app-state schema for settings, approved theses, manual positions, journal entries, structured evidence, and earnings reviews.
 - Optional DuckDB analytics tables for scoring and benchmark snapshots.
-- Next.js frontend with Today, Research Pipeline, Evidence Workbench, AI universe screener, stock detail, thesis form, portfolio tracker, journal, earnings lab, reports, and settings.
+- Next.js frontend with Today, Research Pipeline, Evidence Workbench, AI universe screener, stock detail, Data Health, thesis form, portfolio tracker, journal, earnings lab, reports, and settings.
 - Mock/demo seed universe for NVDA, AMD, AVGO, MRVL, TSM, ASML, AMAT, LRCX, KLAC, MU, SNDK, WDC, STX, ANET, CSCO, CIEN, MSFT, GOOGL, AMZN, META, ORCL, VRT, ETN, PWR, CEG, NRG, EQIX, DLR, PLTR, NOW, CRWD, DDOG, SNOW, and MDB.
-- Provider foundation for SEC metadata, mock prices, benchmark snapshots, FRED/EIA placeholders, source provenance, and demo/live routing.
+- Provider foundation for SEC metadata/companyfacts, mock price history, benchmark snapshots, technical indicators, FRED/EIA metadata-safe routes, source provenance, and demo/live/mixed routing.
 - Earnings/evidence engine, editable valuation underwriting workbench, probability-weighted IRR, portfolio/journal intelligence, fixture no-lookahead backtest skeleton, local alerts, and review-cycle reports.
 - Optional AI provider foundation with disabled-by-default mode, draft-only AI routes, schema validation, explicit external-provider acknowledgement, and no automatic decision mutation.
 - Tests for anti-buy-the-dip gates, thesis requirements, earnings weakening, weighted valuation hurdle, concentration cap, hard drawdown mode, portfolio/journal intelligence, provider metadata, AI draft safety, alerts, report routes, and no-lookahead validation.
@@ -82,6 +82,12 @@ curl http://127.0.0.1:8000/portfolio
 curl http://127.0.0.1:8000/earnings
 curl http://127.0.0.1:8000/reports/weekly
 curl http://127.0.0.1:8000/providers/status
+curl http://127.0.0.1:8000/financials/NVDA
+curl http://127.0.0.1:8000/prices/NVDA
+curl http://127.0.0.1:8000/technical/NVDA
+curl http://127.0.0.1:8000/data/health
+curl http://127.0.0.1:8000/macro/fred/FEDFUNDS
+curl http://127.0.0.1:8000/energy/eia/context
 curl http://127.0.0.1:8000/alerts
 curl http://127.0.0.1:8000/journal/analytics
 curl http://127.0.0.1:8000/valuation/NVDA
@@ -141,11 +147,11 @@ The current scoring weights and cutoffs are deterministic MVP heuristics. The re
 The current local/demo system keeps mock/demo mode as the default and exposes provider metadata foundations:
 
 - SEC EDGAR company facts, submissions, and filing metadata with custom User-Agent, caching, backoff, and <=10 requests/second.
-- Mock daily price snapshots and benchmark snapshots for SPY, QQQ, XLK, and SMH.
+- Mock daily price snapshots, deterministic adjusted price history, technical indicators, and benchmark snapshots/history for SPY, QQQ, XLK, and SMH.
 - Provider response metadata including source URL, source/as-of dates when available, retrieved timestamp, cache status, provider status, and errors.
-- Safe FRED and EIA placeholders that do not require API keys in demo mode.
+- Safe FRED and EIA metadata routes that return missing-key/not-implemented envelopes instead of crashing when optional keys are absent.
 - Optional AI draft provider mode. Default is `QGEAR_AI_PROVIDER=none`; set `QGEAR_AI_PROVIDER=openai`, `QGEAR_AI_MODEL`, and `OPENAI_API_KEY` only when you intentionally want explicit draft AI assistance.
-- Optional Alpha Vantage, Financial Modeling Prep, Finnhub, Nasdaq Data Link, and experimental yfinance fallback later.
+- Optional Alpha Vantage price-provider stub with safe missing-key behavior; Financial Modeling Prep, Finnhub, Nasdaq Data Link, and experimental yfinance fallback remain future extensions.
 
 API keys belong in `.env`; no keys are hardcoded.
 Keep `NEXT_PUBLIC_API_URL` pointed at localhost unless you intentionally accept sending local research, journal, and portfolio data to another API host.

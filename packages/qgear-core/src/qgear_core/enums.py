@@ -43,6 +43,40 @@ class Confidence(str, Enum):
     HIGH = "HIGH"
 
 
+class EvidenceSourceType(str, Enum):
+    DEMO = "DEMO"
+    MANUAL = "MANUAL"
+    AI_DRAFT = "AI_DRAFT"
+    AI_USER_VERIFIED = "AI_USER_VERIFIED"
+    SEC_FILING = "SEC_FILING"
+    EARNINGS_RELEASE = "EARNINGS_RELEASE"
+    TRANSCRIPT = "TRANSCRIPT"
+    PRICE_PROVIDER = "PRICE_PROVIDER"
+    MACRO_PROVIDER = "MACRO_PROVIDER"
+    ENERGY_PROVIDER = "ENERGY_PROVIDER"
+    OTHER = "OTHER"
+
+
+class EvidenceVerificationStatus(str, Enum):
+    UNVERIFIED = "UNVERIFIED"
+    USER_VERIFIED = "USER_VERIFIED"
+    PROVIDER_VERIFIED = "PROVIDER_VERIFIED"
+    SYSTEM_VALIDATED = "SYSTEM_VALIDATED"
+    REJECTED = "REJECTED"
+
+
+class EvidenceQuality(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+
+
+class DataMode(str, Enum):
+    DEMO = "demo"
+    LIVE = "live"
+    MIXED = "mixed"
+
+
 class ThesisStatus(str, Enum):
     NOT_STARTED = "NOT_STARTED"
     DRAFT = "DRAFT"

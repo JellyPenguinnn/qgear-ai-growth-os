@@ -30,6 +30,7 @@ class ProviderStatus(str, Enum):
 class DataMode(str, Enum):
     DEMO = "demo"
     LIVE = "live"
+    MIXED = "mixed"
 
 
 def utc_now_iso() -> str:
@@ -161,6 +162,19 @@ class PriceSnapshot:
 
 
 @dataclass(frozen=True)
+class PriceHistoryPoint:
+    ticker: str
+    date: str
+    open: float
+    high: float
+    low: float
+    close: float
+    adjusted_close: float
+    volume: int
+    provider: str = "mock"
+
+
+@dataclass(frozen=True)
 class BenchmarkSnapshot:
     benchmark: str
     snapshot_date: str
@@ -184,6 +198,11 @@ class FilingsProvider(Protocol):
 
 class PriceProvider(Protocol):
     def daily_prices(self, tickers: tuple[str, ...]) -> ProviderResponse:
+        ...
+
+
+class PriceHistoryProvider(Protocol):
+    def daily_adjusted_history(self, ticker: str, *, output_size: str = "compact") -> ProviderResponse:
         ...
 
 

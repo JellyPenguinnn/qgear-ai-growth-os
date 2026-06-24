@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap tracks the v1.0 to v2.0 upgrade path. `AGENTS.md` is the fixed repo contract; this file is the evolving milestone plan.
+This roadmap tracks the v1.0 to v2.1 upgrade path. `AGENTS.md` is the fixed repo contract; this file is the evolving milestone plan.
 
 ## v1.0 — Local/Demo Research OS
 
@@ -257,3 +257,49 @@ Verification summary:
 - API smoke passed for health, Today, Pipeline, AI status, Universe, Portfolio, Earnings, Weekly report, Alerts, Journal analytics, Valuation, valuation calculate POST, and backtest fixture routes.
 - Built route smoke passed for `/`, `/pipeline`, `/evidence`, `/universe`, `/universe/NVDA`, `/earnings`, `/portfolio`, `/journal`, `/reports`, and `/settings`.
 - Browser visual smoke was attempted but blocked by the in-app Browser runtime initialization issue before navigation.
+
+## v2.1 — Professional Live Research Foundation
+
+Status: locally completed and ready for GitHub publish on 2026-06-24; GitHub-hosted CI observation remains pending after push.
+
+Goal: move from a polished local/demo research OS toward a professional live-data-capable research foundation without weakening Q-GEAR guardrails.
+
+Milestones:
+
+- A. Baseline and CI reality check.
+- B. Core source/evidence/data-quality gates.
+- C. SEC financial foundation with ticker-CIK mapping and canonical companyfacts parsing.
+- D. Price, benchmark, and technical engine from price history.
+- E. FRED/EIA macro and energy context as review-only data.
+- F. Professional UI/UX live/demo clarity with Data Health.
+- G. Release pass with full tests, smoke checks, docs, and known limitations.
+
+Progress:
+
+- Completed: baseline Python tests, compile, seed validation, frontend lint/typecheck/build, and dependency audit.
+- Completed: read-only audits for Core Brain, Live Data, Backend/API, Frontend/UI/UX, AI Safety, QA/CI, Security/Privacy, and Documentation/PM.
+- Completed: pure-core v2.1 evidence/source models and source-quality gates.
+- Completed: regression tests for AI_DRAFT, AI_USER_VERIFIED, demo evidence in live mode, SEC/provider-verified evidence, missing source type, price-only evidence, source-quality threshold, provider errors, and mixed-mode caution.
+- Completed: SEC-style ticker-CIK demo mapping, companyfacts financial snapshot parser, NVDA fixture/mock companyfacts, `/financials/{ticker}`, `/financials/{ticker}/metrics`, `/data/quality/{ticker}`, `/data/health`, and explicit SEC refresh route.
+- Completed: provider/API tests for SEC fixture parsing and data-quality route review-only behavior.
+- Completed: deterministic mock price history, technical snapshot calculations, Alpha Vantage missing-key stub, `/prices/{ticker}`, `/technical/{ticker}`, price/benchmark refresh routes, FRED/EIA metadata-safe routes, Data Health UI, Today data-health summary, and Stock Workbench data-quality card.
+- Completed: provider/API/frontend verification for price/technical/macro/energy/Data Health implementation.
+- Completed: source type, verification status, source URL, provider, filing/accession, and period metadata now persist through SQLite/API evidence saves and appear in stock-detail evidence tables.
+- Completed: final v2.1 release pass with Python tests, compile checks, seed validation, frontend lint/typecheck/build, dependency audit, API smoke, and built-route smoke.
+
+Verification summary:
+
+- `python3 scripts/run_tests.py`: passed, 76 tests.
+- `python3 -m compileall packages apps/api scripts tests`: passed.
+- `python3 scripts/seed_local_data.py`: passed; DuckDB remained optional/unavailable in the global Python context.
+- `npm run lint`, `npm run typecheck`, `npm run build`: passed in `apps/web`.
+- `npm audit --omit=dev`: passed with 0 vulnerabilities after approved registry access.
+- API smoke passed for health, data health, financials, technicals, macro, universe, portfolio, earnings, weekly reports, energy, and prices.
+- Built route smoke passed for `/`, `/data-health`, `/universe/NVDA`, `/pipeline`, `/settings`, `/universe`, `/evidence`, `/earnings`, `/portfolio`, `/journal`, and `/reports`.
+- Browser visual smoke was attempted but blocked by the in-app Browser runtime initialization issue before navigation.
+
+Remaining caveats:
+
+- GitHub-hosted CI needs to be observed after push.
+- Live SEC/FRED/EIA/Alpha Vantage network behavior remains optional and unverified.
+- Local write APIs remain intended for loopback personal use, not public deployment.
