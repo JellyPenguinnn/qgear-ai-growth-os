@@ -127,39 +127,40 @@ export default async function PortfolioPage() {
 
           <SectionCard title="Positions" description="Manual records only. This app does not execute trades.">
             {portfolio.positions.length ? (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Ticker</th>
-                      <th>Shares</th>
-                      <th>Avg cost</th>
-                      <th>Current</th>
-                      <th>Market value</th>
-                      <th>P/L</th>
-                      <th>Weight</th>
-                      <th>Status</th>
-                      <th>Thesis</th>
-                      <th>Review</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {portfolio.positions.map((position) => (
-                    <tr key={position.id}>
-                      <td>{position.ticker}</td>
-                      <td>{position.shares}</td>
-                      <td>${position.average_cost.toFixed(2)}</td>
-                      <td>${position.current_price.toFixed(2)}</td>
-                      <td>${position.market_value.toFixed(2)}</td>
-                      <td className={position.unrealized_pl >= 0 ? "ok-text" : "danger-text"}>${position.unrealized_pl.toFixed(2)}</td>
-                      <td>{position.position_weight_pct.toFixed(1)}%</td>
-                      <td>{position.status}</td>
-                      <td>{position.thesis_status}</td>
-                      <td>{position.next_review_date}</td>
-                    </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="position-grid">
+                {portfolio.positions.map((position) => (
+                  <article className="position-card" key={position.id}>
+                    <div className="position-card-header">
+                      <span>
+                        <strong>{position.ticker}</strong>
+                        <small>
+                          {position.status} · {position.thesis_status}
+                        </small>
+                      </span>
+                      <span className={position.unrealized_pl >= 0 ? "badge ok" : "badge warn"}>
+                        ${position.unrealized_pl.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="position-card-metrics">
+                      <div className="mini-stat">
+                        <span>Weight</span>
+                        <strong>{position.position_weight_pct.toFixed(1)}%</strong>
+                      </div>
+                      <div className="mini-stat">
+                        <span>Value</span>
+                        <strong>${position.market_value.toFixed(0)}</strong>
+                      </div>
+                      <div className="mini-stat">
+                        <span>Review</span>
+                        <strong>{position.next_review_date || "Not set"}</strong>
+                      </div>
+                    </div>
+                    <p className="muted">
+                      {position.shares} shares · avg ${position.average_cost.toFixed(2)} · current ${position.current_price.toFixed(2)}
+                    </p>
+                    <small className="muted">Manual record only. No brokerage execution exists here.</small>
+                  </article>
+                ))}
               </div>
             ) : (
               <EmptyState title="No manual positions recorded" detail="Add positions here only after trades are made outside Q-GEAR." />

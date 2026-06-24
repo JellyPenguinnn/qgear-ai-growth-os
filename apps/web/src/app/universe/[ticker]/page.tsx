@@ -4,7 +4,7 @@ import { StateBadge } from "@/components/StateBadge";
 import { StockAIAssistantPanel } from "@/components/StockAIAssistantPanel";
 import { ThesisForm } from "@/components/ThesisForm";
 import { ValuationWorkbench } from "@/components/ValuationWorkbench";
-import { BlockerList, DecisionCard, EmptyState, EvidenceCard, MetricCard, PageHeader, SectionCard } from "@/components/ui";
+import { BlockerList, DecisionCard, EmptyState, EvidenceCard, KeyValueGrid, MetricCard, PageHeader, SectionCard } from "@/components/ui";
 import { getDataQuality, getProviderStatus, getStockDetail, getValuation } from "@/lib/api";
 
 function sizingForState(state: string) {
@@ -83,20 +83,74 @@ export default async function StockDetailPage({ params }: { params: Promise<{ ti
         nextReview={nextReview}
       />
 
+      <section className="workbench-command" aria-label="Research command panel">
+        <div className="focus-card warn">
+          <span className="eyebrow">Why / blocked</span>
+          <h3>{blockers[0] ?? detail.decision_state.reasons[0] ?? "No action justified without a full gate review."}</h3>
+          <p>
+            {blockers.length
+              ? "Resolve blockers with sourced evidence before journaling any state change."
+              : "No hard blocker surfaced, but Q-GEAR still requires thesis, invalidation, evidence, valuation, technical, freshness, and risk checks."}
+          </p>
+          <BlockerList blockers={blockers} empty="No blocker, but this is still manual research only." />
+        </div>
+        <div className="focus-card">
+          <span className="eyebrow">Data quality first</span>
+          {dataQuality ? (
+            <>
+              <KeyValueGrid
+                items={[
+                  {
+                    label: "Source quality",
+                    value: dataQuality.data_quality.source_quality_score,
+                    detail: dataQuality.data_quality.mode,
+                    tone: dataQuality.data_quality.source_quality_score >= 70 ? "ok" : "warn"
+                  },
+                  {
+                    label: "Evidence coverage",
+                    value: dataQuality.data_quality.evidence_coverage_score,
+                    detail: "Needs sourced claims",
+                    tone: dataQuality.data_quality.evidence_coverage_score >= 70 ? "ok" : "warn"
+                  },
+                  {
+                    label: "Missing inputs",
+                    value: dataQuality.data_quality.missing_required_inputs.length,
+                    detail: "Must be reviewed",
+                    tone: dataQuality.data_quality.missing_required_inputs.length ? "warn" : "ok"
+                  },
+                  {
+                    label: "Provider errors",
+                    value: dataQuality.data_quality.provider_errors.length,
+                    detail: "Never ignored",
+                    tone: dataQuality.data_quality.provider_errors.length ? "danger" : "ok"
+                  }
+                ]}
+              />
+              <p className="muted">{dataQuality.reason}</p>
+            </>
+          ) : (
+            <EmptyState title="No data quality available" detail="Reconnect the API to inspect source quality and provider metadata." />
+          )}
+          <Link className="button secondary" href="/data-health">
+            Review data health
+          </Link>
+        </div>
+      </section>
+
       <section className="workbench-summary" aria-label="Workbench summary">
         <MetricCard label="Evidence quality" value={quality.split(";")[0]} detail="MEDIUM/HIGH evidence is required for action-changing decisions" />
         <MetricCard label="Next review" value={nextReview} detail="Review dates keep the thesis from going stale" />
         <MetricCard
-          label="Action permission"
-          value={detail.decision_state.action_allowed ? "Allowed by gates" : "Blocked / wait"}
+          label="Gate review status"
+          value={detail.decision_state.action_allowed ? "Manual review cleared" : "Blocked / wait"}
           detail="Score alone never creates action"
-          tone={detail.decision_state.action_allowed ? "ok" : blockers.length ? "warn" : "neutral"}
+          tone={detail.decision_state.action_allowed ? "warn" : blockers.length ? "warn" : "neutral"}
         />
         <MetricCard
-          label="Max new money"
+          label="Sizing ceiling"
           value={`$${detail.position_sizing.max_new_money.toLocaleString()}`}
           detail={`${detail.position_sizing.range_label || sizing.label}; not trade execution`}
-          tone={detail.position_sizing.max_new_money > 0 ? "ok" : "warn"}
+          tone={detail.position_sizing.max_new_money > 0 ? "warn" : "warn"}
         />
       </section>
 

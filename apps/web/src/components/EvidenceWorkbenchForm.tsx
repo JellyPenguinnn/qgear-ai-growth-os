@@ -10,7 +10,10 @@ const blankEvidence: EvidenceObject = {
   source: "",
   source_date: "",
   confidence: "MEDIUM",
-  disproves_if: ""
+  disproves_if: "",
+  source_type: "MANUAL",
+  verification_status: "USER_VERIFIED",
+  source_url: ""
 };
 
 function formValue(form: FormData, key: string) {
@@ -73,7 +76,10 @@ export function EvidenceWorkbenchForm({ aiEnabled }: { aiEnabled: boolean }) {
       source: formValue(form, "source"),
       source_date: formValue(form, "source_date_verified"),
       confidence: formValue(form, "confidence") as EvidenceObject["confidence"],
-      disproves_if: formValue(form, "disproves_if")
+      disproves_if: formValue(form, "disproves_if"),
+      source_type: formValue(form, "source_type_verified") || "MANUAL",
+      verification_status: "USER_VERIFIED",
+      source_url: formValue(form, "source_url_verified") || null
     };
 
     try {
@@ -95,6 +101,9 @@ export function EvidenceWorkbenchForm({ aiEnabled }: { aiEnabled: boolean }) {
   return (
     <div className="split">
       <form onSubmit={extractWithAI}>
+        <div className="callout compact">
+          <strong>Step 1: source intake.</strong> Use source text, not price movement, as evidence. Only submit externally if AI is configured and you explicitly acknowledge the upload.
+        </div>
         <div className="form-grid">
           <div className="field">
             <label htmlFor="ticker">Ticker</label>
@@ -103,6 +112,7 @@ export function EvidenceWorkbenchForm({ aiEnabled }: { aiEnabled: boolean }) {
           <div className="field">
             <label htmlFor="source_date">Source date</label>
             <input id="source_date" name="source_date" type="date" required />
+            <small>Use the publication or filing date, not the date you pasted it.</small>
           </div>
           <div className="field">
             <label htmlFor="source_title">Source title</label>
@@ -124,6 +134,7 @@ export function EvidenceWorkbenchForm({ aiEnabled }: { aiEnabled: boolean }) {
           <div className="field wide">
             <label htmlFor="pasted_text">Pasted source text</label>
             <textarea id="pasted_text" name="pasted_text" placeholder="Paste only the excerpt you want converted into evidence." required />
+            <small>Keep private portfolio, journal, or personal data out unless you intentionally want to process it.</small>
           </div>
           <label className="check-label wide">
             <input name="external_ai_acknowledged" type="checkbox" disabled={!aiEnabled} />
@@ -135,11 +146,18 @@ export function EvidenceWorkbenchForm({ aiEnabled }: { aiEnabled: boolean }) {
             Extract evidence draft
           </button>
           <span className="badge">{aiEnabled ? "AI enabled" : "AI disabled"}</span>
-          {draftMessage ? <span className="muted" aria-live="polite">{draftMessage}</span> : null}
+          {draftMessage ? (
+            <span className="muted" role="status" aria-live="polite">
+              {draftMessage}
+            </span>
+          ) : null}
         </div>
       </form>
 
       <form onSubmit={saveVerifiedEvidence}>
+        <div className="callout warn compact">
+          <strong>Step 2: user verification.</strong> Saving evidence means you verified the claim, source, confidence, and disproof condition. It still does not change the decision state automatically.
+        </div>
         <div className="form-grid">
           <div className="field">
             <label htmlFor="save_ticker">Save to ticker</label>
@@ -169,6 +187,30 @@ export function EvidenceWorkbenchForm({ aiEnabled }: { aiEnabled: boolean }) {
             <input id="source" name="source" value={evidence.source} onChange={(event) => setEvidence({ ...evidence, source: event.target.value })} required />
           </div>
           <div className="field">
+            <label htmlFor="source_type_verified">Verified source type</label>
+            <select
+              id="source_type_verified"
+              name="source_type_verified"
+              value={evidence.source_type ?? "MANUAL"}
+              onChange={(event) => setEvidence({ ...evidence, source_type: event.target.value })}
+            >
+              <option value="EARNINGS_RELEASE">Earnings release</option>
+              <option value="SEC_FILING">SEC filing</option>
+              <option value="TRANSCRIPT">Transcript excerpt</option>
+              <option value="MANUAL">Manual note</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="source_url_verified">Source URL / reference</label>
+            <input
+              id="source_url_verified"
+              name="source_url_verified"
+              value={evidence.source_url ?? ""}
+              onChange={(event) => setEvidence({ ...evidence, source_url: event.target.value })}
+              placeholder="URL, accession, or local reference"
+            />
+          </div>
+          <div className="field">
             <label htmlFor="confidence">Confidence</label>
             <select
               id="confidence"
@@ -192,7 +234,11 @@ export function EvidenceWorkbenchForm({ aiEnabled }: { aiEnabled: boolean }) {
           </button>
           <span className="badge">User verified</span>
           {evidence.confidence === "LOW" ? <span className="warn-text">LOW confidence cannot support action-changing decisions.</span> : null}
-          {message ? <span className="muted" aria-live="polite">{message}</span> : null}
+          {message ? (
+            <span className="muted" role="status" aria-live="polite">
+              {message}
+            </span>
+          ) : null}
         </div>
       </form>
     </div>

@@ -76,7 +76,8 @@ export function MetricCard({
 
 export function ProviderStatusBadge({ mode }: { mode: string }) {
   const label = mode.replaceAll("_", " ");
-  return <span className="provider-badge">Data mode: {label}</span>;
+  const tone = mode === "live" ? "ok" : mode === "mixed" ? "warn" : "";
+  return <span className={`provider-badge ${tone}`}>Data mode: {label}</span>;
 }
 
 export function EmptyState({ title, detail }: { title: string; detail: string }) {
@@ -98,6 +99,60 @@ export function BlockerList({ blockers, empty = "No hard blockers surfaced." }: 
         <li key={blocker}>{blocker}</li>
       ))}
     </ul>
+  );
+}
+
+export function HeroPanel({
+  eyebrow,
+  title,
+  detail,
+  children,
+  actions
+}: {
+  eyebrow: string;
+  title: string;
+  detail: string;
+  children?: ReactNode;
+  actions?: ReactNode;
+}) {
+  return (
+    <section className="hero-panel">
+      <div>
+        <span className="eyebrow">{eyebrow}</span>
+        <h2>{title}</h2>
+        <p>{detail}</p>
+      </div>
+      {children ? <div className="hero-panel-body">{children}</div> : null}
+      {actions ? <div className="hero-panel-actions">{actions}</div> : null}
+    </section>
+  );
+}
+
+export function KeyValueGrid({ items }: { items: Array<{ label: string; value: ReactNode; detail?: ReactNode; tone?: "neutral" | "ok" | "warn" | "danger" | "review" }> }) {
+  return (
+    <div className="key-grid">
+      {items.map((item) => (
+        <div className={`key-item ${item.tone ?? "neutral"}`} key={item.label}>
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+          {item.detail ? <small>{item.detail}</small> : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function StepList({ steps }: { steps: Array<{ title: string; detail: string; tone?: "neutral" | "ok" | "warn" | "danger" }> }) {
+  return (
+    <ol className="step-list">
+      {steps.map((step, index) => (
+        <li className={step.tone ?? "neutral"} key={step.title}>
+          <span>{index + 1}</span>
+          <strong>{step.title}</strong>
+          <p>{step.detail}</p>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -129,6 +184,7 @@ export function DecisionCard({
           <strong>{score.toFixed(1)}</strong>
         </div>
         <p>{reasons[0] ?? "No action justified without fresh evidence and all gates clear."}</p>
+        <small>Decision state is a research workflow result, not broker execution.</small>
       </div>
       <div className="decision-card-side">
         <span className="eyebrow">Blocked because</span>
@@ -176,6 +232,24 @@ export function EvidenceCard({ item }: { item: EvidenceObject }) {
           <dt>Confidence</dt>
           <dd>{item.confidence}</dd>
         </div>
+        {item.source_type ? (
+          <div>
+            <dt>Type</dt>
+            <dd>{item.source_type.replaceAll("_", " ")}</dd>
+          </div>
+        ) : null}
+        {item.verification_status ? (
+          <div>
+            <dt>Verification</dt>
+            <dd>{item.verification_status.replaceAll("_", " ")}</dd>
+          </div>
+        ) : null}
+        {item.provider ? (
+          <div>
+            <dt>Provider</dt>
+            <dd>{item.provider}</dd>
+          </div>
+        ) : null}
         <div>
           <dt>Disproves if</dt>
           <dd>{item.disproves_if}</dd>

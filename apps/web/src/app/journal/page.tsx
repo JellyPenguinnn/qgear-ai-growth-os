@@ -78,6 +78,9 @@ export default async function JournalPage() {
 
       <section className="section split">
         <SectionCard title="Log Decision" description="Journal the process. STARTER_ALLOWED and ADD_ALLOWED are decision states, not broker commands.">
+          <div className="callout warn compact">
+            <strong>Journal is an audit trail, not a shortcut.</strong> A saved entry does not approve a thesis, refresh evidence, or create trade execution.
+          </div>
           <JournalForm />
         </SectionCard>
         <div>
@@ -124,37 +127,40 @@ export default async function JournalPage() {
 
           <SectionCard title="Recent Entries" description="Local audit trail for decisions and non-decisions.">
             {journal.entries.length ? (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Ticker</th>
-                      <th>State</th>
-                      <th>Score</th>
-                      <th>Expected IRR</th>
-                      <th>Process</th>
-                      <th>Quality</th>
-                      <th>Review</th>
-                      <th>Evidence</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {journal.entries.map((entry) => (
-                    <tr key={entry.id}>
-                      <td>{entry.entry_date}</td>
-                      <td>{entry.ticker}</td>
-                      <td>{entry.action}</td>
-                      <td>{entry.score.toFixed(1)}</td>
-                      <td>{entry.expected_irr_pct.toFixed(1)}%</td>
-                      <td>{entry.followed_system ? "Followed" : "Missed"} · {entry.process_score.toFixed(0)}</td>
-                      <td>{entry.evidence_quality}</td>
-                      <td>{entry.future_review_date}</td>
-                      <td>{entry.evidence}</td>
-                    </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="journal-grid">
+                {journal.entries.map((entry) => (
+                  <article className="journal-card" key={entry.id}>
+                    <div className="journal-card-header">
+                      <span>
+                        <strong>
+                          {entry.ticker} · {entry.action}
+                        </strong>
+                        <small>{entry.entry_date}</small>
+                      </span>
+                      <span className={entry.followed_system ? "badge ok" : "badge warn"}>
+                        {entry.followed_system ? "Followed system" : "Review process"}
+                      </span>
+                    </div>
+                    <div className="journal-card-metrics">
+                      <div className="mini-stat">
+                        <span>Score</span>
+                        <strong>{entry.score.toFixed(1)}</strong>
+                      </div>
+                      <div className="mini-stat">
+                        <span>Expected IRR</span>
+                        <strong>{entry.expected_irr_pct.toFixed(1)}%</strong>
+                      </div>
+                      <div className="mini-stat">
+                        <span>Process</span>
+                        <strong>{entry.process_score.toFixed(0)}</strong>
+                      </div>
+                    </div>
+                    <p>{entry.evidence}</p>
+                    <p className="muted">
+                      Evidence quality: {entry.evidence_quality} · future review: {entry.future_review_date}
+                    </p>
+                  </article>
+                ))}
               </div>
             ) : (
               <EmptyState title="No journal entries yet" detail="Start with a NO_ACTION entry when no evidence changed." />

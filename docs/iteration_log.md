@@ -324,3 +324,21 @@
   - HTML phrase checks confirmed the new Data Health and Stock Workbench data-quality surfaces rendered expected text.
   - Attempted in-app Browser visual smoke; the Browser runtime failed before navigation with `sandboxCwd must be an absolute file URI`.
   - Preserved all Q-GEAR guardrails: no auto-trading, no broker execution, no margin, no options-by-default, no price-only buy/add behavior, and AI remains explicit, draft-only, disabled by default, and unable to mutate decisions automatically.
+- Completed v2.1 UI polish layer:
+  - Consolidated bounded read-only audits for UI/UX, frontend architecture, product flow, accessibility/responsiveness, and QA/build.
+  - Improved the shell with skip-link support, active navigation semantics, stronger focus states, safety-status chrome, and guardrail footer copy.
+  - Redesigned Today around a “Start here” command panel, daily no-action stance, review queue, data mode, drawdown mode, and manual-review state context.
+  - Redesigned Data Health with provider tiles, missing-key repair queue, and clearer review-only/live-demo boundaries.
+  - Converted Universe, Portfolio, Journal, and Weekly Reports from dense table-first layouts to card-first research surfaces.
+  - Moved blockers and data-quality context into the first screen of the Stock Workbench.
+  - Converted Evidence Workbench into a guided source-intake and user-verification workflow, including source type, source URL/reference, and user-verified provenance fields.
+  - Added route-level loading, error, and not-found states that explicitly do not mutate decisions.
+  - Re-ran `python3 scripts/run_tests.py`: passed with 76 tests.
+  - Re-ran `python3 -m compileall packages apps/api scripts tests`: passed.
+  - Re-ran `python3 scripts/seed_local_data.py`: passed; DuckDB remained optional/unavailable in the global Python context.
+  - Re-ran frontend `npm run lint`, `npm run typecheck`, and `npm run build`: passed.
+  - Re-ran `npm audit --omit=dev`: sandbox DNS failed first, then approved registry-access rerun passed with 0 vulnerabilities.
+  - Re-ran API smoke with approved local-server binding. `/health`, `/universe`, `/portfolio`, `/earnings`, `/reports/weekly`, `/alerts`, and `/valuation/NVDA` returned HTTP 200.
+  - Re-ran built Next route smoke with approved local-server binding. `/`, `/data-health`, `/pipeline`, `/evidence`, `/universe`, `/universe/NVDA`, `/earnings`, `/portfolio`, `/journal`, `/reports`, and `/settings` returned HTTP 200.
+  - Attempted in-app Browser visual smoke; the Browser runtime failed before navigation with `sandboxCwd must be an absolute file URI`.
+  - Preserved all Q-GEAR guardrails: no auto-trading, no broker execution, no margin, no options-by-default, no price-only buy/add behavior, and AI remains explicit, draft-only, disabled by default, and unable to mutate decisions automatically.

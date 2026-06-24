@@ -62,6 +62,7 @@ export function JournalForm() {
             <option>TRIM_CANDIDATE</option>
             <option>EXIT_THESIS_BROKEN</option>
           </select>
+          <small>This is a journaled state, not a broker instruction.</small>
         </div>
         <div className="field">
           <label htmlFor="price">Price</label>
@@ -70,6 +71,7 @@ export function JournalForm() {
         <div className="field">
           <label htmlFor="position_size_pct">Position size</label>
           <input id="position_size_pct" name="position_size_pct" type="number" step="0.1" defaultValue="0" />
+          <small>Use 0 for no-action, watchlist, or blocked decisions.</small>
         </div>
         <div className="field">
           <label htmlFor="score">Score</label>
@@ -115,6 +117,7 @@ export function JournalForm() {
         <div className="field wide">
           <label htmlFor="evidence">Evidence and source</label>
           <textarea id="evidence" name="evidence" required />
+          <small>Include source, date, confidence, and the claim it supports.</small>
         </div>
         <div className="field wide">
           <label htmlFor="thesis">Thesis</label>
@@ -141,8 +144,13 @@ export function JournalForm() {
         <button className="button" type="submit">
           Log decision
         </button>
-        {message ? <span className="muted">{message}</span> : null}
+        <span className="form-help">No entry is saved until the local API confirms it.</span>
       </div>
+      {message ? (
+        <span className="muted" role="status" aria-live="polite">
+          {message}
+        </span>
+      ) : null}
     </form>
   );
 }

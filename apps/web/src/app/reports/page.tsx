@@ -138,18 +138,22 @@ export default async function ReportsPage() {
           <p className="muted">{daily.alert_note ?? alerts.note}</p>
         </SectionCard>
         <SectionCard title="Alert Queue" description="Review prompts only. Open evidence before journaling any state change.">
-          {(alerts.alerts.length ? alerts.alerts.slice(0, 5) : daily.top_alerts ?? []).map((alert) => (
-            <p key={`${alert.type}-${alert.ticker ?? "portfolio"}`}>
-              <span className={`badge ${alert.severity === "high" ? "danger" : alert.severity === "medium" ? "warn" : ""}`}>
-                {alert.type.replaceAll("_", " ")}
-              </span>{" "}
-              <strong>{alert.ticker ?? "Portfolio"}</strong>: {alert.message}
-              <span className="muted">
-                {" "}
-                Source: {alert.source}, {alert.source_date}, {alert.confidence}. Review prompt only.
-              </span>
-            </p>
-          ))}
+          {(alerts.alerts.length ? alerts.alerts.slice(0, 5) : daily.top_alerts ?? []).length ? (
+            <div className="card-list">
+              {(alerts.alerts.length ? alerts.alerts.slice(0, 5) : daily.top_alerts ?? []).map((alert) => (
+                <article className={`alert-card ${alert.severity}`} key={`${alert.type}-${alert.ticker ?? "portfolio"}`}>
+                  <span className="eyebrow">{alert.type.replaceAll("_", " ")}</span>
+                  <h3>{alert.ticker ?? "Portfolio"}</h3>
+                  <p>{alert.message}</p>
+                  <small>
+                    Source: {alert.source}, {alert.source_date}, {alert.confidence}. Review prompt only.
+                  </small>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="No report alerts" detail="No local review prompts are present in the current data." />
+          )}
         </SectionCard>
       </section>
 
@@ -199,31 +203,27 @@ export default async function ReportsPage() {
         </SectionCard>
       </section>
 
-      <SectionCard title={weekly.title} description={weekly.note}>
+      <SectionCard title="Weekly Research Queue" description={`${weekly.note} Rankings prioritize review only; they are not buy lists.`}>
         {weekly.rankings.length ? (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Ticker</th>
-                  <th>Score</th>
-                  <th>State</th>
-                  <th>AI layer</th>
-                </tr>
-              </thead>
-              <tbody>
-                {weekly.rankings.map((row) => (
-                  <tr key={row.ticker}>
-                    <td>{row.rank}</td>
-                    <td>{row.ticker}</td>
-                    <td>{row.score.toFixed(1)}</td>
-                    <td>{row.decision_state.replaceAll("_", " ")}</td>
-                    <td>{row.ai_layer.replaceAll("_", " ")}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="report-grid">
+            {weekly.rankings.map((row) => (
+              <article className="report-card" key={row.ticker}>
+                <div className="entity-card-header">
+                  <span>
+                    <strong>
+                      #{row.rank} · {row.ticker}
+                    </strong>
+                    <small>{row.ai_layer.replaceAll("_", " ")}</small>
+                  </span>
+                  <span className="badge review">{row.decision_state.replaceAll("_", " ")}</span>
+                </div>
+                <div className="mini-stat">
+                  <span>Research score</span>
+                  <strong>{row.score.toFixed(1)}</strong>
+                </div>
+                <p className="muted">Open the stock workbench to inspect blockers, evidence, valuation, technical state, and portfolio risk.</p>
+              </article>
+            ))}
           </div>
         ) : (
           <EmptyState title="No weekly ranking data" detail="Fallback mode has not loaded rankings from the API." />

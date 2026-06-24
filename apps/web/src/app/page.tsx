@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { StateBadge } from "@/components/StateBadge";
-import { EmptyState, MetricCard, PageHeader, ProviderStatusBadge, SectionCard } from "@/components/ui";
+import { EmptyState, HeroPanel, KeyValueGrid, MetricCard, PageHeader, ProviderStatusBadge, SectionCard } from "@/components/ui";
 import { getDataHealth, getToday } from "@/lib/api";
 
 export default async function TodayPage() {
@@ -23,6 +23,51 @@ export default async function TodayPage() {
         }
       />
 
+      <HeroPanel
+        eyebrow="Start here"
+        title={today.default_stance}
+        detail={today.stance_reason}
+        actions={
+          <>
+            <Link className="button" href={"/pipeline" as Route}>
+              Open pipeline
+            </Link>
+            <Link className="button secondary" href="/data-health">
+              Check data health
+            </Link>
+          </>
+        }
+      >
+        <KeyValueGrid
+          items={[
+            {
+              label: "Review queue",
+              value: today.metrics.review_queue_count,
+              detail: "Evidence and risk items to inspect first",
+              tone: today.metrics.review_queue_count ? "warn" : "ok"
+            },
+            {
+              label: "Risk mode",
+              value: today.metrics.drawdown_mode.replaceAll("_", " "),
+              detail: `${today.metrics.drawdown_pct.toFixed(1)}% current drawdown`,
+              tone: today.metrics.drawdown_mode === "NORMAL" ? "ok" : "warn"
+            },
+            {
+              label: "Manual review states",
+              value: today.metrics.action_allowed_count,
+              detail: "Not trade instructions",
+              tone: today.metrics.action_allowed_count ? "review" : "neutral"
+            },
+            {
+              label: "Data mode",
+              value: today.provider_status.mode.replaceAll("_", " "),
+              detail: "Demo/live/mixed context",
+              tone: today.provider_status.mode === "live" ? "ok" : today.provider_status.mode === "mixed" ? "warn" : "neutral"
+            }
+          ]}
+        />
+      </HeroPanel>
+
       <section className="section">
         <div className="grid cols-4">
           <MetricCard label="Universe" value={today.metrics.universe_count} detail="Demo tickers classified" />
@@ -34,9 +79,9 @@ export default async function TodayPage() {
             tone={today.metrics.drawdown_mode === "NORMAL" ? "ok" : "warn"}
           />
           <MetricCard
-            label="Gated action states"
+            label="Manual review states"
             value={today.metrics.action_allowed_count}
-            detail="Manual review only"
+            detail="Gate-cleared research states; not trade commands"
             tone={today.metrics.action_allowed_count ? "warn" : "neutral"}
           />
         </div>
@@ -78,7 +123,7 @@ export default async function TodayPage() {
         </div>
       </SectionCard>
 
-      <section className="split">
+      <section className="focus-grid section">
         <SectionCard
           title="Review Queue"
           description="Evidence, thesis, valuation, technical, and portfolio-risk items to inspect before any decision changes."
@@ -107,7 +152,7 @@ export default async function TodayPage() {
         </SectionCard>
 
         <SectionCard title="Pipeline Snapshot" description="Where the universe sits today.">
-          <div className="metric-stack">
+          <div className="card-list">
             {today.pipeline_snapshot.map((state) => (
               <Link href={"/pipeline" as Route} className="snapshot-row" key={state.state}>
                 <span>

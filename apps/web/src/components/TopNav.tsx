@@ -23,7 +23,7 @@ export function TopNav() {
   return (
     <nav className="nav" aria-label="Primary navigation">
       {nav.map(({ href, label, matcher }) => (
-        <Link key={href} href={href as Route} className={matcher(pathname) ? "active" : undefined}>
+        <Link key={href} href={href as Route} className={matcher(pathname) ? "active" : undefined} aria-current={matcher(pathname) ? "page" : undefined}>
           {label}
         </Link>
       ))}

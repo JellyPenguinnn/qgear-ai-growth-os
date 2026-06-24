@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MetricCard, PageHeader, SectionCard } from "@/components/ui";
+import { HeroPanel, KeyValueGrid, MetricCard, PageHeader, SectionCard } from "@/components/ui";
 import { getDataHealth } from "@/lib/api";
 
 export default async function DataHealthPage() {
@@ -24,6 +24,46 @@ export default async function DataHealthPage() {
         }
       />
 
+      <HeroPanel
+        eyebrow="Before research"
+        title={`${health.mode.replaceAll("_", " ")} data mode`}
+        detail="Data health improves confidence in the research record. It does not create buy/add permission or override the decision engine."
+        actions={
+          <Link className="button secondary" href="/settings">
+            Configure providers
+          </Link>
+        }
+      >
+        <KeyValueGrid
+          items={[
+            {
+              label: "SEC",
+              value: health.provider_status.providers.company_facts ?? "not configured",
+              detail: "Filings and company facts",
+              tone: health.provider_status.providers.company_facts === "live" ? "ok" : "neutral"
+            },
+            {
+              label: "Prices",
+              value: health.provider_status.providers.price_history ?? "not configured",
+              detail: "Technical confirmation only",
+              tone: health.provider_status.providers.price_history === "live" ? "ok" : "neutral"
+            },
+            {
+              label: "AI",
+              value: health.provider_status.ai.provider_metadata.status,
+              detail: "Draft-only explicit requests",
+              tone: health.provider_status.ai.ai_enabled ? "review" : "neutral"
+            },
+            {
+              label: "Missing keys",
+              value: missingKeys.length,
+              detail: "Optional; demo mode still works",
+              tone: missingKeys.length ? "warn" : "ok"
+            }
+          ]}
+        />
+      </HeroPanel>
+
       <section className="section">
         <div className="grid cols-4">
           <MetricCard label="Mode" value={health.mode.replaceAll("_", " ")} detail="Demo mode runs without keys" />
@@ -34,9 +74,52 @@ export default async function DataHealthPage() {
       </section>
 
       <SectionCard title="Provider Sections" description="These statuses are research context, not trade instructions.">
+        <div className="provider-grid">
+          {health.sections.map((section) => (
+            <article className="provider-tile" key={section.name}>
+              <div className="provider-tile-header">
+                <span>
+                  <strong>{section.name}</strong>
+                  <small>{section.status}</small>
+                </span>
+                <span className={section.can_support_action ? "badge ok" : "badge warn"}>
+                  {section.can_support_action ? "Can support gates" : "Review only"}
+                </span>
+              </div>
+              <p className="muted">{section.note}</p>
+            </article>
+          ))}
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Repair Queue" description="Use this as setup guidance. Missing optional data should not crash the app.">
+        {missingKeys.length ? (
+          <div className="provider-grid">
+            {missingKeys.map(([name, value]) => (
+              <article className="provider-tile" key={name}>
+                <div className="provider-tile-header">
+                  <span>
+                    <strong>{name.replaceAll("_", " ")}</strong>
+                    <small>Optional configuration</small>
+                  </span>
+                  <span className="badge warn">Missing</span>
+                </div>
+                <p>{value}</p>
+                <small className="muted">Add this only if you want live/provider-assisted research. Demo mode remains valid for local testing.</small>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="callout ok">
+            <strong>No missing optional provider keys reported.</strong> Continue to the research pipeline and still verify source metadata before decisions.
+          </div>
+        )}
+      </SectionCard>
+
+      <SectionCard title="Provider Details" description="Raw section statuses remain available for audit and debugging.">
         <div className="status-list">
           {health.sections.map((section) => (
-            <article className="status-row" key={section.name}>
+            <article className="status-row" key={`${section.name}-detail`}>
               <span>
                 <strong>{section.name}</strong>
                 <small>{section.status}</small>
@@ -69,20 +152,6 @@ export default async function DataHealthPage() {
       </section>
 
       <section className="split">
-        <SectionCard title="Missing Optional Keys" description="Demo mode works without these keys. Missing keys should not crash the app.">
-          {missingKeys.length ? (
-            <div className="flag-row">
-              {missingKeys.map(([name, value]) => (
-                <span className="badge warn" key={name}>
-                  {value}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="ok-text">No missing optional provider keys reported by the local API.</p>
-          )}
-        </SectionCard>
-
         <SectionCard title="Macro Series" description="FRED context is review-only and never creates action permission.">
           <div className="flag-row">
             {health.default_fred_series.map((series) => (

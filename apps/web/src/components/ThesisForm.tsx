@@ -37,6 +37,7 @@ export function ThesisForm({ ticker }: { ticker: string }) {
         <div className="field wide">
           <label htmlFor="statement">Thesis statement</label>
           <textarea id="statement" name="statement" required placeholder="Evidence-based thesis, not price movement." />
+          <small>Price movement alone is never evidence for a thesis.</small>
         </div>
         <div className="field wide">
           <label htmlFor="must_go_right">What must go right</label>
@@ -45,6 +46,7 @@ export function ThesisForm({ ticker }: { ticker: string }) {
         <div className="field wide">
           <label htmlFor="breaks_if">What would break thesis</label>
           <textarea id="breaks_if" name="breaks_if" required />
+          <small>This invalidation rule is required before any starter/add state can clear.</small>
         </div>
         <div className="field">
           <label htmlFor="key_metrics">Key metrics to monitor</label>
@@ -59,8 +61,13 @@ export function ThesisForm({ ticker }: { ticker: string }) {
         <button className="button" type="submit">
           Approve thesis
         </button>
-        {message ? <span className="muted">{message}</span> : null}
+        <span className="form-help">Approval is local research state only; it does not create trade execution.</span>
       </div>
+      {message ? (
+        <span className="muted" role="status" aria-live="polite">
+          {message}
+        </span>
+      ) : null}
     </form>
   );
 }

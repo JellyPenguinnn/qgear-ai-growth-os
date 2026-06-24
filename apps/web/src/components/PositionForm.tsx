@@ -48,6 +48,7 @@ export function PositionForm() {
         <div className="field">
           <label htmlFor="current_price">Current price</label>
           <input id="current_price" name="current_price" type="number" step="0.01" required />
+          <small>Used for local risk math only. It is not a live quote or order ticket.</small>
         </div>
         <div className="field">
           <label htmlFor="status">Status</label>
@@ -76,8 +77,13 @@ export function PositionForm() {
         <button className="button" type="submit">
           Record position
         </button>
-        {message ? <span className="muted">{message}</span> : null}
+        <span className="form-help">Manual tracking only; no brokerage connection is created.</span>
       </div>
+      {message ? (
+        <span className="muted" role="status" aria-live="polite">
+          {message}
+        </span>
+      ) : null}
     </form>
   );
 }

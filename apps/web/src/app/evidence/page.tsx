@@ -1,5 +1,5 @@
 import { EvidenceWorkbenchForm } from "@/components/EvidenceWorkbenchForm";
-import { MetricCard, PageHeader, ProviderStatusBadge, SectionCard } from "@/components/ui";
+import { MetricCard, PageHeader, ProviderStatusBadge, SectionCard, StepList } from "@/components/ui";
 import { getProviderStatus } from "@/lib/api";
 
 export default async function EvidenceWorkbenchPage() {
@@ -28,6 +28,24 @@ export default async function EvidenceWorkbenchPage() {
         <div className="callout compact">
           Evidence can improve the research record, but it does not create a buy/add action by itself. Decision state still requires thesis, invalidation rule, valuation, technical confirmation, freshness, and risk budget.
         </div>
+        <StepList
+          steps={[
+            {
+              title: "Paste a source excerpt",
+              detail: "Use an earnings release, filing, transcript excerpt, or manual note with a source date."
+            },
+            {
+              title: "Draft or write evidence",
+              detail: aiStatus.ai_enabled ? "AI can draft extracted evidence only after explicit acknowledgement." : "AI is disabled, so write the verified evidence manually.",
+              tone: aiStatus.ai_enabled ? "warn" : "neutral"
+            },
+            {
+              title: "Verify before saving",
+              detail: "Edit claim, source, confidence, and disproof criteria. LOW confidence remains research-only.",
+              tone: "warn"
+            }
+          ]}
+        />
         <EvidenceWorkbenchForm aiEnabled={aiStatus.ai_enabled} />
       </SectionCard>
     </div>

@@ -57,13 +57,13 @@ function PipelineCard({ item }: { item: PipelineItem }) {
 export function ResearchPipeline({ states }: { states: PipelineState[] }) {
   const populated = states.filter((state) => state.count > 0);
 
-  if (!populated.length) {
+  if (!states.length || !populated.length) {
     return <EmptyState title="Pipeline empty" detail="No companies are currently available in the local demo universe." />;
   }
 
   return (
     <div className="pipeline-board">
-      {populated.map((state) => (
+      {states.map((state) => (
         <section className="pipeline-column" key={state.state}>
           <div className="pipeline-column-header">
             <span>
@@ -73,9 +73,11 @@ export function ResearchPipeline({ states }: { states: PipelineState[] }) {
             <span className="badge">{state.count}</span>
           </div>
           <div className="pipeline-items">
-            {state.items.map((item) => (
-              <PipelineCard key={item.ticker} item={item} />
-            ))}
+            {state.items.length ? (
+              state.items.map((item) => <PipelineCard key={item.ticker} item={item} />)
+            ) : (
+              <EmptyState title="No names here" detail="Nothing currently sits in this review state." />
+            )}
           </div>
         </section>
       ))}

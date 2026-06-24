@@ -14,10 +14,10 @@ The app is not an advisory product, not an auto-trader, and not a day-trading sy
 - FastAPI backend with demo universe, stock detail, settings, thesis approval, portfolio, journal, earnings lab, provider metadata, financials, data health, valuation, alerts, and report routes.
 - SQLite app-state schema for settings, approved theses, manual positions, journal entries, structured evidence, and earnings reviews.
 - Optional DuckDB analytics tables for scoring and benchmark snapshots.
-- Next.js frontend with Today, Research Pipeline, Evidence Workbench, AI universe screener, stock detail, Data Health, thesis form, portfolio tracker, journal, earnings lab, reports, and settings.
+- Next.js frontend with a polished card-first research workstation: Today, Research Pipeline, Evidence Workbench, AI universe screener, Stock Workbench, Data Health, thesis form, portfolio tracker, journal, earnings lab, reports, and settings.
 - Mock/demo seed universe for NVDA, AMD, AVGO, MRVL, TSM, ASML, AMAT, LRCX, KLAC, MU, SNDK, WDC, STX, ANET, CSCO, CIEN, MSFT, GOOGL, AMZN, META, ORCL, VRT, ETN, PWR, CEG, NRG, EQIX, DLR, PLTR, NOW, CRWD, DDOG, SNOW, and MDB.
 - Provider foundation for SEC metadata/companyfacts, mock price history, benchmark snapshots, technical indicators, FRED/EIA metadata-safe routes, source provenance, and demo/live/mixed routing.
-- Earnings/evidence engine, editable valuation underwriting workbench, probability-weighted IRR, portfolio/journal intelligence, fixture no-lookahead backtest skeleton, local alerts, and review-cycle reports.
+- Earnings/evidence engine, guided evidence verification, editable valuation underwriting workbench, probability-weighted IRR, portfolio/journal intelligence, fixture no-lookahead backtest skeleton, local alerts, and review-cycle reports.
 - Optional AI provider foundation with disabled-by-default mode, draft-only AI routes, schema validation, explicit external-provider acknowledgement, and no automatic decision mutation.
 - Tests for anti-buy-the-dip gates, thesis requirements, earnings weakening, weighted valuation hurdle, concentration cap, hard drawdown mode, portfolio/journal intelligence, provider metadata, AI draft safety, alerts, report routes, and no-lookahead validation.
 

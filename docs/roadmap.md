@@ -303,3 +303,29 @@ Remaining caveats:
 - GitHub-hosted CI needs to be observed after push.
 - Live SEC/FRED/EIA/Alpha Vantage network behavior remains optional and unverified.
 - Local write APIs remain intended for loopback personal use, not public deployment.
+
+## v2.1 UI Polish Layer — Research Workstation Experience
+
+Status: locally completed on 2026-06-24; pending GitHub-hosted CI observation after push.
+
+Goal: make the verified v2.1 app feel like a clearer, calmer, more professional local research workstation without changing the decision engine or weakening Q-GEAR guardrails.
+
+Completed:
+
+- App shell and navigation polish with skip-link support, active page semantics, stronger focus states, and visible safety boundaries.
+- Today page command panel focused on daily stance, review queue, data mode, drawdown mode, and manual review states.
+- Data Health page with provider tiles, repair queue, missing-key context, and review-only boundaries.
+- Card-first Universe, Portfolio, Journal, and Reports surfaces to reduce table density.
+- Stock Workbench first-screen blocker and data-quality context.
+- Evidence Workbench step flow with explicit source intake, optional AI draft, and user verification before saving.
+- Route-level loading, error, and not-found states.
+
+Verification summary:
+
+- Python tests, compile checks, seed validation, frontend lint/typecheck/build, dependency audit, API smoke, and built-route smoke passed locally.
+- Browser visual smoke remains blocked by the in-app Browser runtime initialization issue before navigation.
+
+Deferred:
+
+- Actual browser screenshot/visual regression once the in-app Browser runtime is available.
+- Further visual refinement from real-device screenshots.

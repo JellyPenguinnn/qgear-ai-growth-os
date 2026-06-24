@@ -72,48 +72,45 @@ export function UniverseScreener({ companies }: { companies: DemoCompany[] }) {
       </div>
 
       {filtered.length ? (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Ticker</th>
-                <th>Company</th>
-                <th>AI layer</th>
-                <th>Score</th>
-                <th>State</th>
-                <th>Growth</th>
-                <th>GM</th>
-                <th>FCF margin</th>
-                <th>Drawdown</th>
-                <th>Blocker / reason</th>
-                <th>Evidence</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((company) => (
-                <tr key={company.ticker}>
-                  <td>
-                    <Link href={`/universe/${company.ticker}` as Route}>
+        <>
+          <div className="callout compact">
+            <strong>{filtered.length} names match.</strong> Open a workbench to inspect blockers, source metadata, thesis status, valuation, technical state, and portfolio impact.
+          </div>
+          <div className="entity-grid">
+            {filtered.map((company) => {
+              const blocker = company.decision?.blocked_reasons?.[0];
+              const reason = blocker ?? company.decision?.reasons?.[0] ?? "Review thesis and evidence.";
+              return (
+                <Link href={`/universe/${company.ticker}` as Route} className="entity-card" key={company.ticker}>
+                  <div className="entity-card-header">
+                    <span>
                       <strong>{company.ticker}</strong>
-                    </Link>
-                  </td>
-                  <td>{company.company_name}</td>
-                  <td>{company.ai_layer.replaceAll("_", " ")}</td>
-                  <td>{company.score.total.toFixed(1)}</td>
-                  <td>
+                      <small>{company.company_name}</small>
+                    </span>
                     <StateBadge state={company.status} />
-                  </td>
-                  <td>{company.metrics.revenue_growth_pct.toFixed(1)}%</td>
-                  <td>{company.metrics.gross_margin_pct.toFixed(1)}%</td>
-                  <td>{company.metrics.fcf_margin_pct.toFixed(1)}%</td>
-                  <td>{company.metrics.drawdown_from_high_pct.toFixed(1)}%</td>
-                  <td>{company.decision?.blocked_reasons?.[0] ?? company.decision?.reasons?.[0] ?? "Review thesis and evidence."}</td>
-                  <td>{company.evidence_summary}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                  <p>{reason}</p>
+                  <div className="entity-card-metrics">
+                    <div className="mini-stat">
+                      <span>Score</span>
+                      <strong>{company.score.total.toFixed(1)}</strong>
+                    </div>
+                    <div className="mini-stat">
+                      <span>Growth</span>
+                      <strong>{company.metrics.revenue_growth_pct.toFixed(1)}%</strong>
+                    </div>
+                    <div className="mini-stat">
+                      <span>Drawdown</span>
+                      <strong>{company.metrics.drawdown_from_high_pct.toFixed(1)}%</strong>
+                    </div>
+                  </div>
+                  <p className="muted">{company.ai_layer.replaceAll("_", " ")}</p>
+                  <p className="muted">{company.evidence_summary}</p>
+                </Link>
+              );
+            })}
+          </div>
+        </>
       ) : (
         <EmptyState title="No names match these filters" detail="Relax one filter or return to all states before making research conclusions." />
       )}

@@ -4,9 +4,9 @@ Last updated: 2026-06-24
 
 ## Current Milestone
 
-Active milestone: v2.1 Professional Live Research Foundation, locally completed and ready for GitHub publish.
+Active milestone: v2.1 Professional Live Research Foundation plus UI polish, locally completed and ready for GitHub publish.
 
-v2.0 was verified locally on 2026-06-23 and pushed to `main` as commit `f167a3d` with a docs follow-up at `86bd95f`. v2.1 started and was locally verified on 2026-06-24. GitHub-hosted CI still needs to be observed in GitHub after this v2.1 push.
+v2.0 was verified locally on 2026-06-23 and pushed to `main` as commit `f167a3d` with a docs follow-up at `86bd95f`. v2.1 started and was locally verified on 2026-06-24. A focused UI/UX polish layer was also locally verified on 2026-06-24. GitHub-hosted CI still needs to be observed in GitHub after this push.
 
 ## Audit Summary
 
@@ -78,6 +78,19 @@ Consolidated accepted plan:
 - Completed: verified no auto-trading, broker execution, margin, options-by-default, price-only buy/add behavior, or AI decision mutation was introduced.
 - Caveat: live SEC/FRED/EIA/Alpha Vantage network behavior remains optional and unverified; demo/metadata-safe behavior is verified.
 - Caveat: browser visual smoke remains blocked by the in-app Browser runtime initialization issue before navigation.
+
+## v2.1 UI Polish Layer — Professional Research Workstation
+
+- Completed: bounded read-only UI/UX, frontend architecture, product-flow, accessibility/responsiveness, and QA/build audits were consolidated before edits.
+- Completed: app shell now has skip-link support, active navigation semantics, stronger safety-status chrome, and guardrail copy.
+- Completed: Today now opens with a “Start here” command panel, daily stance, review queue, data mode, drawdown mode, and manual review-state context before broad metrics.
+- Completed: Data Health now presents provider mode, missing optional keys, repair queue, provider tiles, and review-only boundaries more clearly.
+- Completed: Universe, Portfolio, Journal, and Reports use card-first layouts instead of primary dense tables.
+- Completed: Stock Workbench first screen now surfaces blockers and data quality immediately after the decision card.
+- Completed: Evidence Workbench is now a step-guided source-intake and user-verification flow with provenance fields persisted through the existing API.
+- Completed: route-level loading, error, and not-found states communicate that no decision state is mutated during failures.
+- Completed: frontend lint, typecheck, production build, dependency audit, full Python/API tests, compile checks, seed validation, API smoke, and built-route smoke passed.
+- Caveat: Browser visual smoke was attempted but remains blocked by the in-app Browser runtime `sandboxCwd` initialization issue before navigation.
 
 Nine read-only specialist audits were completed on 2026-06-23:
 
